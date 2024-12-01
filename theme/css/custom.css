@@ -1,0 +1,172 @@
+/* Estilo de la barra lateral */
+#sidebar {
+    background-color: #f9f9f9;
+    padding: 15px; /* Mantén el padding si deseas espacio dentro de la barra lateral */
+    border-radius: 5px;
+    margin-right: 0; /* Elimina el margen derecho que puede estar generando espacio */
+    display: flex;
+    flex-direction: column; /* Organiza los elementos de arriba hacia abajo */
+    align-items: center; /* Centra los elementos horizontalmente */
+}
+
+/* Estilo de la imagen en la barra lateral */
+#sidebar .about-me {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    justify-content: center; /* Asegura que la imagen esté centrada verticalmente */
+}
+
+#sidebar .about-me img.avatar {
+    width: 100px;             /* Establece el tamaño deseado */
+    height: 100px;            /* Mantén la proporción con width */
+    border-radius: 50%;       /* Hace la imagen circular */
+    display: block;           /* Asegura que se comporte como un bloque */
+    margin: 0 auto 10px auto; /* Centra la imagen con espacio abajo */
+}
+
+/* Estilo del texto de la descripción en la barra lateral */
+#sidebar .about-me p {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Estilo de la lista de redes sociales */
+#sidebar .social-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;  /* Alinea los íconos verticalmente */
+    justify-content: center; /* Alinea los íconos verticalmente */
+    align-items: center;     /* Centra los íconos */
+}
+
+/* Estilo de cada ítem de red social */
+#sidebar .social-links li {
+    margin: 10px 0; /* Espacio entre los íconos */
+}
+
+/* Estilo para los enlaces de las redes sociales */
+#sidebar .social-links li a {
+    color: #333;
+    font-size: 2em; /* Ajusta el tamaño de los íconos */
+    display: inline-block;
+    line-height: 1; /* Elimina el espacio extra alrededor del ícono */
+}
+
+/* Ajustes adicionales para evitar espacio vacío entre la barra lateral y el contenido */
+.row-fluid .span2, .row-fluid .span10 {
+    margin: 0;    /* Elimina los márgenes */
+    padding: 0;   /* Elimina el relleno */
+}
+
+/* Asegúrate de que el contenido principal y la barra lateral no tengan relleno extra */
+.row-fluid .span2 {
+    margin-right: 0;  /* Elimina el margen derecho de la barra lateral */
+}
+
+.row-fluid .span10 {
+    padding-left: 0;  /* Elimina el relleno izquierdo del contenido */
+}
+
+/* Estilo para las tarjetas de proyecto */
+.project-card {
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 5px;
+    margin: 10px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.project-card h2 {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+
+.project-card p {
+    font-size: 1em;
+    color: #666;
+}
+
+.project-card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Estilo para las tarjetas de los artículos recientes */
+.recent-post-card {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.recent-post-card h2 {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+
+.recent-post-card .recent-post-details {
+    font-size: 0.9em;
+    color: #777;
+    margin-bottom: 10px;
+}
+
+.recent-post-card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+html, body {
+    height: 100%; /* Para que la altura del contenido ocupe el 100% del viewport */
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#content {
+    flex: 1; /* Este hace que el contenido se expanda para llenar el espacio disponible */
+}
+
+footer {
+    background: #f8f9fa; /* Cambia esto a tu color deseado */
+    text-align: center;
+    padding: 10px 0;
+    position: relative;
+}
+
+hr {
+    margin-bottom: 0; /* Ajusta esto según tu diseño */
+    border-color: #fff; /* Color acorde a tu diseño */
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.pagination a {
+    text-decoration: none;
+    color: #007bff;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f1f1f1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.pagination a:hover {
+    background-color: #ddd;
+}
+
+.previous-page {
+    margin-right: auto;
+}
+
+.next-page {
+    margin-left: auto;
+}

