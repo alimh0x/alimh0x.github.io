@@ -19,7 +19,7 @@
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary">
 
-<meta name="keywords" content="CTF, offensive, HTB, " />
+<meta name="keywords" content="Linux, CTF, Laravel, Abusing CVE, Abusing Sudoers Privilege, HTB, " />
 
 <meta property="og:title" content="Resolución de máquina Academy "/>
 <meta property="og:url" content="https://alimh0x.github.io/htb-academy.html" />
@@ -166,7 +166,7 @@ PORT      STATE SERVICE VERSION
 <p><img alt="academy" src="images/images_htb_academy/htb_academy-9.jpg"></p>
 <p>Vamos a buscar exploits para esto:</p>
 <p><img alt="academy" src="images/images_htb_academy/htb_academy-10.jpg"></p>
-<p>Existen vulnerabilidades para Laravel Framework que permite ejecución remota de código. Inicialmente encontramos un <a href="https://github.com/joshuavanderpoll/CVE-2021-3129">script</a> asociado al <strong>CVE-202-3129</strong>, pero no tenemos éxito.</p>
+<p>Existen vulnerabilidades para Laravel Framework que permite ejecución remota de código. Inicialmente encontramos un <a href="https://github.com/joshuavanderpoll/CVE-2021-3129">script</a> asociado al <strong>CVE-2021-3129</strong>, pero no tenemos éxito.</p>
 <p>Luego, damos con el <strong>CVE-2018-15133</strong>. Encontramos el siguiente exploit: https://github.com/aljavier/exploit_laravel_cve-2018-15133</p>
 <p>Lo descargamos y lo probamos. Vemos que el uso es el siguiente:</p>
 <div class="highlight"><pre><span></span><code>pwn_laravel.py [-h] [-c COMMAND] [-m {1,2,3,4}] [-i] URL API_KEY
@@ -275,11 +275,20 @@ sudo composer --working-dir<span class="o">=</span><span class="nv">$TF</span> r
             <a class="category-link" href="https://alimh0x.github.io/categories.html#htb-ref">HTB</a>
             <h4>Tags</h4>
             <ul class="list-of-tags tags-in-article">
+                <li><a href="https://alimh0x.github.io/tags.html#abusing-cve-ref">Abusing CVE
+                    <span class="superscript">7</span>
+</a></li>
+                <li><a href="https://alimh0x.github.io/tags.html#abusing-sudoers-privilege-ref">Abusing Sudoers Privilege
+                    <span class="superscript">4</span>
+</a></li>
                 <li><a href="https://alimh0x.github.io/tags.html#ctf-ref">CTF
                     <span class="superscript">13</span>
 </a></li>
-                <li><a href="https://alimh0x.github.io/tags.html#offensive-ref">offensive
-                    <span class="superscript">15</span>
+                <li><a href="https://alimh0x.github.io/tags.html#laravel-ref">Laravel
+                    <span class="superscript">1</span>
+</a></li>
+                <li><a href="https://alimh0x.github.io/tags.html#linux-ref">Linux
+                    <span class="superscript">7</span>
 </a></li>
             </ul>
             
