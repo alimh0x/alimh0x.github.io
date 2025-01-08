@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="https://alimh0x.github.io/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="https://alimh0x.github.io/theme/css/custom.css" media="screen">
+
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Alexis Imhoff" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="CDSA, HTB Academy, " />
+
+<meta property="og:title" content="Security Monitoring and SIEM Fundamentals "/>
+<meta property="og:url" content="https://alimh0x.github.io/security_monitoring_and_SIEM_fundamentals.html" />
+<meta property="og:description" content="Introducción Este módulo forma parte del path de estudios para la certificación CDSA (HTB Certified Defensive Security Analyst). Proporciona una visión general sobre el funcionamiento de un Security Information and Event Management (SIEM) y el ecosistema de Elastic Stack. Además, aborda el funcionamiento esencial de un Security Operations Center (SOC …" />
+<meta property="og:site_name" content="alimh blog" />
+<meta property="og:article:author" content="Alexis Imhoff" />
+<meta property="og:article:published_time" content="2025-01-08T00:00:00-03:00" />
+<meta name="twitter:title" content="Security Monitoring and SIEM Fundamentals ">
+<meta name="twitter:description" content="Introducción Este módulo forma parte del path de estudios para la certificación CDSA (HTB Certified Defensive Security Analyst). Proporciona una visión general sobre el funcionamiento de un Security Information and Event Management (SIEM) y el ecosistema de Elastic Stack. Además, aborda el funcionamiento esencial de un Security Operations Center (SOC …">
+
+        <title>Security Monitoring and SIEM Fundamentals  · alimh blog
+</title>
+
+
+
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="https://alimh0x.github.io/"><span class=site-name>alimh blog</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       https://alimh0x.github.io
+                                    >Home</a>
+                                </li>
+                                <li ><a href="https://alimh0x.github.io/categories.html">Categories</a></li>
+                                <li ><a href="https://alimh0x.github.io/tags.html">Tags</a></li>
+                                <li ><a href="https://alimh0x.github.io/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="https://alimh0x.github.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+              <div class="row-fluid">
+                <div class="span2"> 
+<aside id="sidebar">
+    <div class="about-me">
+        <img src="https://alimh0x.github.io/images/avatar.webp" alt="Mi Foto" class="avatar">
+        <p>Hola! Soy Alexis Imhoff. Ingeniero en informática apasionado por la ciberseguridad. En este blog subiré writeups de CTFs y algun que otro tema relacionado a seguridad.</p>
+        <ul class="social-links">
+            <li>
+                <a href="https://www.linkedin.com/in/alexis-imhoff/" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-linkedin"></i>
+                    <!-- Linkedin -->
+              </a>
+            </li>
+        </ul>
+    </div>
+</aside>
+                </div>
+              <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset1">
+        <h1>
+            <a href="https://alimh0x.github.io/security_monitoring_and_SIEM_fundamentals.html">
+                Security Monitoring and SIEM Fundamentals
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset1 article-content">
+            
+            <p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/logo_module.webp"></p>
+<h1>Introducción</h1>
+<p>Este módulo forma parte del path de estudios para la certificación <strong>CDSA (HTB Certified Defensive Security Analyst)</strong>. Proporciona una visión general sobre el funcionamiento de un <strong>Security Information and Event Management (SIEM)</strong> y el ecosistema de <strong>Elastic Stack</strong>.</p>
+<p>Además, aborda el funcionamiento esencial de un <strong>Security Operations Center (SOC)</strong>, explora la aplicación de <strong>MITRE ATT&amp;CK framework</strong> en los procesos operativos y profundiza en el desarrollo de querys utilizando <strong>Kibana Query Language (KQL)</strong>.</p>
+<p>Con un enfoque práctico, el módulo propone la creación de casos de uso y visualizaciones en Elastic Stack, desarrollando habilidades esenciales para enfrentar los desafíos reales en el ámbito de la ciberseguridad.</p>
+<h1>¿Qué es Elastic Stack?</h1>
+<p>Elastic Stack, también conocido como <strong>ELK Stack</strong>, es un conjunto de herramientas open-source desarrollado por <strong>Elastic</strong> que permite la recolección, análisis y visualización de datos. Es ampliamente utilizado para log management, monitoreo, análisis de seguridad y análisis de datos en tiempo real. Está compuesto por tres componentes principales: <strong>Elasticsearch</strong>, <strong>Logstash</strong> y <strong>Kibana</strong>.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image1.jpg"></p>
+<p>La arquitectura de alto nivel de la <strong>Elastic Stack</strong> se puede mejorar en entornos de uso intensivo de recursos con otros componentes como <em>Kafka</em>, <em>RabbitMQ</em> y <em>Redis</em>.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image2.jpg"></p>
+<h2>Componentes</h2>
+<h3>Elasticsearch</h3>
+<p>Elasticsearch es un motor de búsqueda, análisis y almacenamiento de datos open-source. Sus características principales son:</p>
+<p><strong>Motor de búsqueda distribuido</strong></p>
+<ul>
+<li>Almacena datos en formato <em>JSON</em> y los organiza en un clúster distribuido.</li>
+<li>Permite búsquedas rápidas y escalables, incluso en grandes volúmenes de datos.</li>
+<li>Al ser distribuido, podemos agregar más nodos al clúster para manejar más datos y mejorar el rendimiento.</li>
+<li>Los datos se dividen en <em>shards</em> (fragmentos), que se replican para garantizar redundancia y alta disponibilidad.</li>
+</ul>
+<p><strong>Búsqueda en tiempo real</strong> </p>
+<ul>
+<li>Permite realizar consultas y obtener resultados casi instantáneos, lo cual es ideal para casos de monitoreo, análisis y búsquedas interactivas.</li>
+</ul>
+<p><strong>Flexibilidad con JSON</strong></p>
+<ul>
+<li>Los datos se almacenan y procesan en formato JSON, lo que facilita la integración con APIs y sistemas modernos.</li>
+</ul>
+<p><strong>API RESTful</strong></p>
+<ul>
+<li>Interactuar con Elasticsearch es sencillo gracias a su API RESTful, que utiliza HTTP para enviar y recibir datos.</li>
+</ul>
+<h3>Logstash</h3>
+<p>Logstash es responsable de <strong>recopilar, transformar</strong> y <strong>transportar</strong> datos de diversas fuentes hacia un destino, como <strong>Elasticsearch</strong>. Logstash opera en tres áreas principales:</p>
+<ol>
+<li>
+<p><strong>Process input</strong>: Logstash soporta una amplia variedad de entradas. Puede recibir logs a través de diferentes <a href="https://www.elastic.co/guide/en/logstash/current/input-plugins.html">input methods</a>, como archivos de logs, bases de datos, sistemas de mensajería (Kafka, RAbbitMQ), sistemas de monitoreo, mensajes de syslog, etc.</p>
+<p>Ejemplos de input plugins:</p>
+<ul>
+<li><em>file</em>: para leer archivos locales.</li>
+<li><em>tcp</em> o <em>udp</em>: para capturar datos de red.</li>
+<li><em>http</em>: para consumir APIs.</li>
+<li><em>beats</em>: para recibir datos de agentes Beats.</li>
+</ul>
+</li>
+<li>
+<p><strong>Transform and enrich log records</strong>: Permite transformar los datos mediante <a href="https://www.elastic.co/guide/en/logstash/current/filter-plugins.html">plugin filters</a> que limpian, enriquecen y estructuran la información antes de enviarla al destino. Se pueden realizar tareas como eliminar campos innecesarios, dividir cadenas de texto en partes más pequeñas, convertir formatos de fechas, aplicar expresiones regulares para extraer información, etc.</p>
+<p>Ejemplos de plugin filters: </p>
+<ul>
+<li><em>date</em>: para estandarizar formatos de fecha.</li>
+<li><em>mutate</em>: para modificar o convertir campos.</li>
+<li><em>geoip</em>: para agregar información geográfica basada en direcciones IP.</li>
+</ul>
+</li>
+<li>
+<p><strong>Send log records to Elasticsearch</strong>: Logstash utiliza <a href="https://www.elastic.co/guide/en/logstash/current/output-plugins.html">output plugins</a> para transmitir log records a Elasticsearch. Estos plugins permiten enviar los datos transformados de manera eficiente y en tiempo real, asegurando que estén listos para ser indexados y analizados en Kibana.</p>
+</li>
+</ol>
+<h3>Kibana</h3>
+<p>Kibana funciona como herramienta de visualización para documentos de Elasticsearch. Es la interfaz gráfica del Elastic Stack. Los usuarios pueden ver los datos almacenados en Elasticsearch y ejecutar querys a través de Kibana. Ofrece gráficos interactivos, dashboards personalizables, y funcionalidades avanzadas para trabajar con datos estructurados y no estructurados en tiempo real.</p>
+<h3>Beats</h3>
+<p>Son un componente adicional de Elastic Stack. Es una colección de agentes ligeros que recopilan y envían datos de diferentes orígenes a <strong>Elasticsearch</strong> o <strong>Logstash</strong>. </p>
+<p>Los Beats son pequeños programas que se ejecutan en servidores, máquinas virtuales, contenedores, dispositivos IoT, o cualquier entorno donde se generen datos. Su objetivo es recopilar estos datos y enviarlos directamente a Elasticsearch o a Logstash para procesamiento y almacenamiento. Cada tipo de Beat está especializado en un tipo de datos o fuente de información. Esto permite configurar agentes específicos para distintas necesidades.</p>
+<p>Principales tipos de Beats:</p>
+<ul>
+<li><strong>Filebeat</strong>: Recopila y envía logs de archivos en tiempo real.</li>
+<li><strong>Metricbeat</strong>: Recopila métricas de sistemas operativos, aplicaciones y servicios. Un uso típico puede ser el monitoreo de uso de CPU, memoria, disco y red en servidores, o métricas de bases de datos.</li>
+<li><strong>Packetbeat</strong>: Monitorea tráfico de red y analiza protocolos en tiempo real. Uso típico: detección de problemas en el performance de la red.</li>
+<li><strong>Heartbeat</strong>: Monitorea la disponibilidad de servicios mediante "pings".</li>
+<li><strong>Auditbeat</strong>: Monitorea eventos relacionados con la seguridad y auditoría del sistema.</li>
+<li><strong>Winlogbeat</strong>: Recopila eventos del login de Windows.</li>
+</ul>
+<h3>Beats -&gt; Logstash -&gt; Elasticsearch -&gt; Kibana</h3>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image3.jpg"></p>
+<h1>Elastic Stack como una solución SIEM</h1>
+<p>Elastic Stack se puede utilizar como una solución de <em>Security Information and Event Management (SIEM)</em> para recopilar, almacenar, analizar y visualizar datos relacionados con la seguridad de varios orígenes como firewalls, IDS/IPS, endpoints, etc. </p>
+<p>Como analistas del SOC, cuando trabajemos con Elastic Stack, la mayor parte del tiempo utilizaremos Kibana como nuestra interfaz principal.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image4.jpg"></p>
+<h2>Kibana Query Language (KQL)</h2>
+<p>Kibana Query Language (KQL) es un lenguaje de consulta potente y fácil de usar diseñado específicamente para buscar y analizar datos en Kibana. Simplifica el proceso de extracción de información de los datos indexados de Elasticsearch y ofrece un enfoque más intuitivo que el Query DSL de Elasticsearch. Exploremos los aspectos técnicos y los componentes clave del lenguaje KQL.</p>
+<p><strong>Basic Structure</strong></p>
+<p>Las consultas KQL se componen de pares <em>field:value</em>, donde el <em>field</em> representa el atributo de los datos y el <em>value</em> representa los datos que buscamos. Por ejemplo:</p>
+<div class="highlight"><pre><span></span><code>event.code:4625
+</code></pre></div>
+
+<p>La KQL query <code>event.code:4625</code> filtra los datos en Kibana para mostrar los eventos que tienen el <a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4625">Windows event code 4625</a>, que corresponde con intentos de login fallidos en Windows.</p>
+<p>Al usar esta query, los analistas de SOC pueden identificar intentos de login fallidos en máquinas Windows dentro del Elasticsearch index e investigar el origen de los intentos y las posibles amenazas de seguridad. Este tipo de consulta puede ayudar a identificar ataques de fuerza bruta, adivinación de contraseñas y otras actividades sospechosas.</p>
+<p>Al refinar aún más la consulta con condiciones adicionales, como la source IP address, username, o time range, los analistas pueden obtener información más específica e investigar de manera eficaz los posibles incidentes de seguridad.</p>
+<p><strong>Free Text Search</strong></p>
+<p>KQL también permite buscar un término específico en varios campos sin especificar un <em>field name</em>. Por ejemplo:</p>
+<div class="highlight"><pre><span></span><code>&quot;svc-sql1&quot;
+</code></pre></div>
+
+<p>Esta consulta devuelve registros que contienen la cadena "svc-sql1" en cualquier campo indexado.</p>
+<p><strong>Logical Operators</strong></p>
+<p>KQL admite los operadores lógicos AND, OR y NOT para construir consultas más complejas. Los paréntesis se pueden utilizar para agrupar expresiones y controlar el orden de evaluación. Por ejemplo:</p>
+<div class="highlight"><pre><span></span><code>event.code:4625 AND winlog.event_data.SubStatus:0xC0000072
+</code></pre></div>
+
+<p>Esta consulta filtra los datos en Kibana para mostrar los eventos que tienen el Windows event code 4625 (failed login attempts) y el valor <em>SubStatus 0xC0000072</em>. En Windows, el valor <em>SubStatus</em> indica el motivo de un login failure. Un valor <strong>SubStatus 0xC0000072</strong> indica que la cuenta está actualmente disable.</p>
+<p>Al usar esta consulta, los analistas pueden identificar intentos de login fallidos en cuentas deshabilitadas. Este tipo de comportamiento requiere una investigación más profunda, ya que es posible que un atacante haya identificado de alguna manera las credenciales de la cuenta deshabilitada.</p>
+<p><strong>Comparison Operators</strong></p>
+<p>KQL admite varios operadores de comparación, como <code>:</code>, <code>:&gt;</code>, <code>:&gt;=</code>, <code>:&lt;</code>, <code>:&lt;=</code> y <code>:!</code>. Estos operadores le permiten definir condiciones precisas para hacer matchear valores de campo. Por ejemplo:</p>
+<div class="highlight"><pre><span></span><code><span class="n">event</span><span class="p">.</span><span class="nl">code</span><span class="p">:</span><span class="mi">4625</span><span class="w"> </span><span class="ow">AND</span><span class="w"> </span><span class="n">winlog</span><span class="p">.</span><span class="n">event_data</span><span class="p">.</span><span class="nl">SubStatus</span><span class="p">:</span><span class="mh">0xC0000072</span><span class="w"> </span><span class="ow">AND</span><span class="w"> </span><span class="nv">@timestamp</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="ss">&quot;2023-03-03T00:00:00.000Z&quot;</span><span class="w"> </span><span class="ow">AND</span><span class="w"> </span><span class="nv">@timestamp</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="ss">&quot;2023-03-06T23:59:59.999Z&quot;</span><span class="w"></span>
+</code></pre></div>
+
+<p>Al utilizar esta consulta, los analistas pueden identificar intentos fallidos de login en cuentas deshabilitadas que tuvieron lugar entre el 3 y el 6 de marzo de 2023.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image5.jpg"></p>
+<p>En este ejemplo, si extendemos todos los campos, vemos que el username es <em>anni</em>:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image6.jpg"></p>
+<p><strong>Wildcards and Regular Expressions</strong></p>
+<p>También admite wildcards y expresiones regulares para buscar patrones en valores de campo. Por ejemplo:</p>
+<div class="highlight"><pre><span></span><code>event.code:4625 AND user.name: admin*
+</code></pre></div>
+
+<p>De esta forma, filtramos los datos para que el username comience con "admin" (como "admin", "administrator", "admin123", etc). En este caso, tenemos 8 hits: </p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image7.jpg"></p>
+<h2>The Elastic Common Schema (ECS)</h2>
+<p>Elastic Common Schema (ECS) es un vocabulario compartido y extensible para eventos y logs en Elastic Stack, que garantiza formatos de campo consistentes en diferentes data sources. Cuando se trata de búsquedas en Kibana Query Language (KQL)  dentro de Elastic Stack, el uso de campos ECS presenta varias ventajas:</p>
+<ul>
+<li><strong>Unified Data View</strong>: ECS aplica un enfoque estructurado y coherente a los datos, lo que permite vistas unificadas de múltiples data sources. Por ejemplo, los datos que se originan en logs de Windows, tráfico de red, eventos de endpoint o fuentes de datos basadas en la nube se pueden buscar y correlacionar utilizando los mismos nombres de campo.</li>
+<li><strong>Improved Search Efficiency</strong>: Al estandarizar los nombres de los campos en distintos tipos de datos, ECS simplifica el proceso de escritura de consultas en KQL. Esto significa que los analistas pueden crear querys de manera eficiente sin necesidad de recordar nombres de campos específicos para cada fuente de datos.</li>
+<li><strong>Enhanced Correlation</strong>: ECS permite una correlación más sencilla de eventos entre distintas fuentes, lo que resulta fundamental en las investigaciones de ciberseguridad. Por ejemplo, puede correlacionar una dirección IP involucrada en un incidente de seguridad con logs de tráfico de red, logs de firewall y datos de endpoints para obtener una comprensión más completa del incidente.</li>
+<li><strong>Better Visualizations</strong>: Las convenciones de nombres de campos mejoran la eficacia de las visualizaciones en Kibana. Como todas las fuentes de datos se adhieren al mismo esquema, la creación de dashboards y visualizaciones se vuelve más sencilla e intuitiva. Esto puede ayudar a detectar tendencias, identificar anomalías y visualizar incidentes de seguridad.</li>
+<li><strong>Interoperability with Elastic Solutions</strong>: El uso de campos ECS garantiza una compatibilidad total con las funciones y soluciones avanzadas de Elastic Stack, como Elastic Security, Elastic Observability y Elastic Machine Learning. Esto permite la búsqueda avanzada de amenazas, la detección de anomalías y la monitoreo del performance.</li>
+<li><strong>Future-proofing</strong>: Como ECS es el esquema fundamental de Elastic Stack, la adopción de ECS garantiza la compatibilidad futura con las mejoras y las nuevas funciones que se introduzcan en el ecosistema Elastic.</li>
+</ul>
+<h1>SIEM Visualization Development</h1>
+<h2>Example 1: Failed Logon Attempts (All Users)</h2>
+<p>Crearemos un nuevo Dashboard desde <em>Analytics -&gt; Dashboard</em> para registrar todos los intentos de login fallidos. Ingresamos a <em>Create visualization</em> y aplicaremos los siguientes filtros:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image8.jpg"></p>
+<p>1 - Selección de tiempo.</p>
+<p>2 - Nuestro objetivo es mostrar los intentos de login fallidos, por lo que consideraremos únicamente los Events IDs <em>4625 – Failed logon attempt on a Windows system</em>. </p>
+<p>3 - Filtramos por equipos Windows.</p>
+<p>4 - Esta barra de búsqueda nos brinda la posibilidad de verificar la existencia de un campo específico dentro de nuestro data set. En este caso, buscaremos el campo <strong>user.name.keyword</strong>.</p>
+<p>El tipo de visualización por default es <em>Bar verticial stacked</em>, pero podemos elegir el que mejor se adapte a nuestras necesidades.</p>
+<p>Elegiremos el modo Tabla, y agregaremos los campos <em>user.name.keyword</em> y <em>host.hostname.keyword</em>:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image9.jpg"></p>
+<p>Luego, <strong>Save and Return</strong> para guardar la Visualization. También darle Save al Dashboard.</p>
+<h4>Refining The Visualization</h4>
+<p>Luego el ejercicio nos plantea los siguientes cambios:</p>
+<ul>
+<li>Especificar nombres de columna más claros.</li>
+<li>Incluir el Logon Type.</li>
+<li>No se deben monitorear los username DESKTOP-DPOESND, WIN-OK9BH1BCKSD y WIN-RMMGJA7T9TC.</li>
+<li>No se deben monitorear las cuentas de computadora (no es una buena práctica)</li>
+</ul>
+<p>Los dos primeros se pueden corregir fácilmente editando la Visualization. El Logon Type puede agregarse con el campo <em>winlog.logon.type.keyword</em>:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image10.jpg"></p>
+<p>Los últimos dos puntos, se deben agregar a los filtros:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image11.jpg"></p>
+<p>Las computer account se pueden excluir especificando la siguiente KQL query y haciendo clic en el botón "Update":</p>
+<div class="highlight"><pre><span></span><code>NOT user.name: *$ AND winlog.channel.keyword: Security
+</code></pre></div>
+
+<p><strong>Question</strong>:  Navigate to http://[Target IP]:5601, click on the side navigation toggle, and click on "Dashboard". Browse the refined visualization we created or the "Failed logon attempts [All users]" visualization, if it is available, and enter the number of logins for the sql-svc1 account as your answer.</p>
+<p><strong>Answer</strong>: 2</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image12.jpg"></p>
+<h2>Example 2: Failed Logon Attempts (Disabled Users)</h2>
+<p><strong>Question</strong>: Navigate to http://[Target IP]:5601, click on the side navigation toggle, and click on "Dashboard". Either create a new visualization or edit the "Failed logon attempts [Disabled user]" visualization, if it is available, so that it includes failed logon attempt data related to disabled users including the logon type. What is the logon type in the returned document?</p>
+<p>Como vimos antes, para este caso además de filtrar por los Event ID <em>4625 – Failed logon attempt on a Windows system</em>, debemos considerar el SubStatus (campo <em>winlog.event_data.SubStatus</em>) que indica, cuando se establece en <em>0xC0000072</em>, que el error se debe a un inicio de sesión con un usuario deshabilitado. </p>
+<p>En las columnas mostramos el Username (user.name.keyword), Event logged by (host.hostname.keyword) y Logon Type (winlog.logon.type.keyword) </p>
+<p><strong>Answer</strong>: Interactive</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image13.jpg"></p>
+<p><strong>Question</strong>:  Navigate to http://[Target IP]:5601, click on the side navigation toggle, and click on "Dashboard". Either create a new visualization or edit the "Failed logon attempts [Admin users only]" visualization, if it is available, so that it includes failed logon attempt data where the username field contains the keyword "admin" anywhere within it. What should you specify after user.name: in the KQL query?</p>
+<p><strong>Answer</strong>: *admin*</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image14.jpg"></p>
+<h2>Example 3: Successful RDP Logon Related To Service Accounts</h2>
+<p>En este ejemplo, el objetivo es crear una visualización para monitorear los inicios de sesión RDP exitosos relacionados específicamente con las cuentas de servicio, ya que las credenciales de las cuentas de servicio nunca deben utilizarse para los inicios de sesión RDP en entornos corporativos (suelen tener permisos elevados). Como aclaración, se nos informa que todas las cuentas de  servicio del entorno comienzan con <em>svc-</em>.</p>
+<p>Utilizaremos el Windows event log: <a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4624">4624: An account was successfully logged on</a>. También debemos tener en cuenta que el <em>Logon Type</em> debe ser <strong>RemoteInteractive</strong> (campo <em>winlog.logon.type</em>). </p>
+<p>Mostraremos los siguientes campos:</p>
+<ul>
+<li>Username (user.name.keyword)</li>
+<li>Connect to (host.hostname.keyword)</li>
+<li>Connect from (related.ip.keyword)</li>
+</ul>
+<p><strong>Question</strong>: Navigate to http://[Target IP]:5601, click on the side navigation toggle, and click on "Dashboard". Browse the visualization we created or the "RDP logon for service account" visualization, if it is available, and enter the IP of the machine that initiated the successful RDP logon using service account credentials as your answer.</p>
+<p><strong>Answer</strong>: 192.168.1.130</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image15.jpg"></p>
+<h1>Example 4: Users Added Or Removed From A Local Group (Within A Specific Timeframe)</h1>
+<p>El objetivo es crear una visualización para monitorear la incorporacion o eliminacion de usuarios del grupo local "Administrators" desde el 5 de marzo de 2023 hasta la fecha.</p>
+<p>Se basará en los siguientes Windows event logs:</p>
+<ul>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4732">4732: A member was added to a security-enabled local group</a></li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4732">4733: A member was removed from a security-enabled local group</a></li>
+</ul>
+<p>A la tabla se agregan los siguientes datos para una mejor comprensión:</p>
+<ul>
+<li><strong>User added</strong>: ¿Qué usuario se agregó o eliminó del grupo? (campo <em>winlog.event_data.MemberSid.keyword</em>)</li>
+<li><strong>Group modified</strong>: ¿En qué grupo se realizó la adición o eliminación? (en este caso mostrará siempre "Administrators" pero nos permite hacer un doble check) (campo <em>group.name.keyword</em>)</li>
+<li><strong>Action perrmed</strong>: ¿Se agregó o eliminó al usuario del grupo? (campo <em>event.action.keyword</em>)</li>
+<li><strong>Action performed on:</strong> ¿En qué máquina se realizó la acción? (campo <em>host.name.keyword</em>)</li>
+</ul>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image16.jpg"></p>
+<p>Lo guardamos con <strong>Save and return</strong>. Para especificar que sea solo desde el 5 de marzo a la fecha, vamos al <em>engranaje --&gt; More --&gt; Customize time range</em>: </p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image17.jpg"></p>
+<p>Nos aparecerá un pop-up donde podemos configurarlo: </p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image18.jpg"></p>
+<p><strong>Question</strong>: Navigate to http://[Target IP]:5601, click on the side navigation toggle, and click on "Dashboard". Extend the visualization we created or the "User added or removed from a local group" visualization, if it is available, and enter the common date on which all returned events took place as your answer. Answer format: 20XX-0X-0X</p>
+<p><strong>Answer</strong>: 2023-03-05</p>
+<p><img alt="module" src="images/images_HTBAcademy_Security_Monitoring_SIEM_Fundamentals/image19.jpg"></p>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2025-01-08T00:00:00-03:00">mié 08 enero 2025</time>
+            <h4>Category</h4>
+            <a class="category-link" href="https://alimh0x.github.io/categories.html#htb-academy-ref">HTB Academy</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="https://alimh0x.github.io/tags.html#cdsa-ref">CDSA
+                    <span class="superscript">1</span>
+</a></li>
+            </ul>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>              </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="https://alimh0x.github.io/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>
