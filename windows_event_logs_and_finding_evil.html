@@ -112,25 +112,7 @@
 <li><strong>System</strong>: Proporciona información general del sistema, incluyendo fallos de hardware y errores de servicios.</li>
 <li><strong>Forwarded</strong>: Recopila y muestra eventos reenviados desde otras máquinas. </li>
 </ul>
-<p>Podemos acceder a los event logs mediante la aplicación <strong>Event Viewer</strong>. Es importante destacar que también permite abrir y visualizar archivos de logs guardados previamente en formato <strong>.evtx</strong>. </p>
-<h2>The Anatomy of an Event Log</h2>
-<p>Al examinar los <strong>Application</strong> logs, encontramos dos niveles distintos de eventos: <strong>information</strong> y <strong>error</strong>.</p>
-<p>Los eventos de information brindan detalles generales sobre el uso de la aplicación, como sus eventos de inicio o detención. Por el contrario, los eventos de error resaltan errores específicos y, a menudo, ofrecen información detallada sobre los problemas encontrados.</p>
-<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen1.jpg"></p>
-<p>Cada entrada del Windows Event Log es un "Event" y contiene los siguientes componentes principales:</p>
-<ul>
-<li><strong>Log Name</strong>: Application, System, Security, etc.</li>
-<li><strong>Source</strong>: el software que registró el evento.</li>
-<li><strong>Event ID</strong>: un identificador único para el evento, que se puede investigar más a fondo en el sitio web de Microsoft.</li>
-<li><strong>Task Category</strong>: a menudo contiene un valor o nombre que puede ayudarnos a comprender el propósito o el uso del evento.</li>
-<li><strong>Level</strong>: la severity del evento (Information, Warning, Error, Critical y Verbose).</li>
-<li><strong>Keyword</strong>: las keywords son flags que nos permiten categorizar los eventos de maneras que van más allá de las otras opciones de clasificación. Por lo general, son categorías amplias, como "Audit Success" o "Audit Failure"" en los Security logs.</li>
-<li><strong>User</strong>: cuenta de usuario que estaba logueada cuando ocurrió el evento.</li>
-<li><strong>OpCode</strong>: este campo puede identificar la operación específica que informa el evento.</li>
-<li><strong>Logged</strong>: fecha y la hora en que se registró el evento.</li>
-<li><strong>Computer</strong>: nombre del equipo en el que ocurrió el evento.</li>
-<li><strong>XML Data</strong>: toda la información anterior también se incluye en formato XML junto con datos adicionales del evento.</li>
-</ul>
+<p>Podemos acceder a los event logs mediante la aplicación <strong>Event Viewer</strong>. ETambién podemos abrir y visualizar archivos de logs guardados previamente en formato <strong>.evtx</strong>. </p>
 <h2>Useful Windows Event Logs</h2>
 <p>Window Security Logs:</p>
 <ul>
@@ -206,7 +188,7 @@ and
 
 <p>Para un control más granular sobre los eventos que se registran, Sysmon utiliza un archivo de configuración basado en XML. Este archivo le permite incluir o excluir ciertos tipos de eventos en función de diferentes atributos, como nombres de procesos, direcciones IP, etc. </p>
 <h2>Detection Example 1: Detecting DLL Hijacking</h2>
-<p>El objetivo es detectar un DLL Hijack. Los Events IDs de Sysmon relevantes para DLL hijacks se pueden encontrar en la <a href="https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon">documentación</a>. Para detectar un DLL hijack, debemos centrarnos en el <strong>Event Type 7</strong> (Image loaded). </p>
+<p>El objetivo es detectar un DLL Hijack. Los Events IDs de Sysmon relevantes para DLL hijacks se pueden encontrar en la <a href="https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon">documentación</a>. Debemos centrarnos en el <strong>Event Type 7</strong> (Image loaded). </p>
 <p>El módulo nos propone el uso del siguiente <a href="https://github.com/SwiftOnSecurity/sysmon-config/blob/master/sysmonconfig-export.xml">archivo de configuración</a>. Al examinar la configuración, podemos observar que el comentario <em>include</em> indica los eventos que se deben incluir:</p>
 <p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen7.jpg"></p>
 <p>Para detectar DLL hijacks, debemos cambiar "include" por "exclude" para garantizar que no se excluya nada, lo que nos permitirá capturar los datos necesarios.</p>
