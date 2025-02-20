@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="https://alimh0x.github.io/theme/css/elegant.prod.9e9d5ce754.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="https://alimh0x.github.io/theme/css/custom.css" media="screen">
+
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+        <link rel="dns-prefetch" href="//fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+
+        <meta name="author" content="Alexis Imhoff" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="CDSA, HTB Academy, " />
+
+<meta property="og:title" content="Windows Event Logs and Finding Evil "/>
+<meta property="og:url" content="https://alimh0x.github.io/windows_event_logs_and_finding_evil.html" />
+<meta property="og:description" content="Introducción Este módulo es parte del plan de estudios para la certificación CDSA (HTB Certified Defensive Security Analyst) y está diseñado para profundizar en el análisis de los Event Logs de Windows. El contenido incluye el uso de Sysmon y presenta ejemplos prácticos de detección de amenazas reales, como DLL …" />
+<meta property="og:site_name" content="alimh blog" />
+<meta property="og:article:author" content="Alexis Imhoff" />
+<meta property="og:article:published_time" content="2025-02-18T00:00:00-03:00" />
+<meta name="twitter:title" content="Windows Event Logs and Finding Evil ">
+<meta name="twitter:description" content="Introducción Este módulo es parte del plan de estudios para la certificación CDSA (HTB Certified Defensive Security Analyst) y está diseñado para profundizar en el análisis de los Event Logs de Windows. El contenido incluye el uso de Sysmon y presenta ejemplos prácticos de detección de amenazas reales, como DLL …">
+
+        <title>Windows Event Logs and Finding Evil  · alimh blog
+</title>
+
+
+
+    </head>
+    <body>
+        <div id="content">
+            <div class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="https://alimh0x.github.io/"><span class=site-name>alimh blog</span></a>
+                        <div class="nav-collapse collapse">
+                            <ul class="nav pull-right top-menu">
+                                <li >
+                                    <a href=
+                                       https://alimh0x.github.io
+                                    >Home</a>
+                                </li>
+                                <li ><a href="https://alimh0x.github.io/categories.html">Categories</a></li>
+                                <li ><a href="https://alimh0x.github.io/tags.html">Tags</a></li>
+                                <li ><a href="https://alimh0x.github.io/archives.html">Archives</a></li>
+                                <li><form class="navbar-search" action="https://alimh0x.github.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+              <div class="row-fluid">
+                <div class="span2"> 
+<aside id="sidebar">
+    <div class="about-me">
+        <img src="https://alimh0x.github.io/images/avatar.webp" alt="Mi Foto" class="avatar">
+        <p>Hola! Soy Alexis Imhoff. Ingeniero en informática apasionado por la ciberseguridad. En este blog subiré writeups de CTFs y algun que otro tema relacionado a seguridad.</p>
+        <ul class="social-links">
+            <li>
+                <a href="https://www.linkedin.com/in/alexis-imhoff/" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-linkedin"></i>
+                    <!-- Linkedin -->
+              </a>
+            </li>
+        </ul>
+    </div>
+</aside>
+                </div>
+              <div class="span10">
+<article itemscope>
+<div class="row-fluid">
+    <header class="page-header span10 offset1">
+        <h1>
+            <a href="https://alimh0x.github.io/windows_event_logs_and_finding_evil.html">
+                Windows Event Logs and Finding Evil
+            </a>
+        </h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset1 article-content">
+            
+            <p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/logo_module.webp"></p>
+<h1>Introducción</h1>
+<p>Este módulo es parte del plan de estudios para la certificación <strong>CDSA (HTB Certified Defensive Security Analyst)</strong> y está diseñado para profundizar en el análisis de los Event Logs de Windows. </p>
+<p>El contenido incluye el uso de <strong>Sysmon</strong> y presenta ejemplos prácticos de detección de amenazas reales, como <strong>DLL hijacking</strong>, <strong>unmanaged PowerShell/C-Sharp injection</strong> y <strong>credential dumping</strong>.</p>
+<p>Además, el módulo explora el funcionamiento del <strong>Event Tracing for Windows (ETW)</strong>, desglosando su arquitectura y componentes clave, al tiempo que demuestra cómo interactuar con esta tecnología para una monitorización efectiva.</p>
+<p>Por último, se presenta el cmdlet <strong>Get-WinEvent</strong>, ideal para realizar análisis optimizados y eficientes de los Windows Event Logs, proporcionando las habilidades necesarias para abordar escenarios del mundo real en la ciberseguridad defensiva.</p>
+<h1>Windows Event Logs</h1>
+<p>Los <strong>Windows Event Logs</strong> son una parte intrínseca del sistema operativo Windows que almacena logs de diferentes componentes del sistema, incluido el sistema en sí, las aplicaciones que se ejecutan en él, los servicios, etc. Como profesionales de ciberseguridad, aprovechamos estos logs para el análisis y la detección de intrusiones. </p>
+<p>Por default, incluyen las siguientes categorías: Application, Security, Setup, System y Forwarded. Cada una de ellas cumple una función específica:</p>
+<ul>
+<li><strong>Application</strong>: Registra errores y eventos generados por aplicaciones.</li>
+<li><strong>Security</strong>: Documenta eventos relacionados con la seguridad, como intentos de inicio de sesión y cambios en los permisos.</li>
+<li><strong>Setup</strong>: Detalla actividades relacionadas con la configuración del sistema, como instalaciones de software.</li>
+<li><strong>System</strong>: Proporciona información general del sistema, incluyendo fallos de hardware y errores de servicios.</li>
+<li><strong>Forwarded</strong>: Recopila y muestra eventos reenviados desde otras máquinas. </li>
+</ul>
+<p>Podemos acceder a los event logs mediante la aplicación <strong>Event Viewer</strong>. Es importante destacar que también permite abrir y visualizar archivos de logs guardados previamente en formato <strong>.evtx</strong>. </p>
+<h2>The Anatomy of an Event Log</h2>
+<p>Al examinar los <strong>Application</strong> logs, encontramos dos niveles distintos de eventos: <strong>information</strong> y <strong>error</strong>.</p>
+<p>Los eventos de information brindan detalles generales sobre el uso de la aplicación, como sus eventos de inicio o detención. Por el contrario, los eventos de error resaltan errores específicos y, a menudo, ofrecen información detallada sobre los problemas encontrados.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen1.jpg"></p>
+<p>Cada entrada del Windows Event Log es un "Event" y contiene los siguientes componentes principales:</p>
+<ul>
+<li><strong>Log Name</strong>: Application, System, Security, etc.</li>
+<li><strong>Source</strong>: el software que registró el evento.</li>
+<li><strong>Event ID</strong>: un identificador único para el evento, que se puede investigar más a fondo en el sitio web de Microsoft.</li>
+<li><strong>Task Category</strong>: a menudo contiene un valor o nombre que puede ayudarnos a comprender el propósito o el uso del evento.</li>
+<li><strong>Level</strong>: la severity del evento (Information, Warning, Error, Critical y Verbose).</li>
+<li><strong>Keyword</strong>: las keywords son flags que nos permiten categorizar los eventos de maneras que van más allá de las otras opciones de clasificación. Por lo general, son categorías amplias, como "Audit Success" o "Audit Failure"" en los Security logs.</li>
+<li><strong>User</strong>: cuenta de usuario que estaba logueada cuando ocurrió el evento.</li>
+<li><strong>OpCode</strong>: este campo puede identificar la operación específica que informa el evento.</li>
+<li><strong>Logged</strong>: fecha y la hora en que se registró el evento.</li>
+<li><strong>Computer</strong>: nombre del equipo en el que ocurrió el evento.</li>
+<li><strong>XML Data</strong>: toda la información anterior también se incluye en formato XML junto con datos adicionales del evento.</li>
+</ul>
+<h2>Useful Windows Event Logs</h2>
+<p>Window Security Logs:</p>
+<ul>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=1102">Event ID 1102</a>: The audit log was cleared.</li>
+<li><a href="https://learn.microsoft.com/en-us/defender-endpoint/troubleshoot-microsoft-defender-antivirus?view=o365-worldwide">Event ID 1116</a>: Microsoft Defender Antivirus malware detection.</li>
+<li><a href="https://learn.microsoft.com/en-us/defender-endpoint/troubleshoot-microsoft-defender-antivirus?view=o365-worldwide">Event ID 1118</a>: Microsoft Defender Antivirus remediation activity has started.</li>
+<li><a href="https://learn.microsoft.com/en-us/defender-endpoint/troubleshoot-microsoft-defender-antivirus?view=o365-worldwide">Event ID 1119</a>: Microsoft Defender Antivirus remediation activity has succeeded.</li>
+<li><a href="https://learn.microsoft.com/en-us/defender-endpoint/troubleshoot-microsoft-defender-antivirus?view=o365-worldwide">Event ID 1120</a>: Microsoft Defender Antivirus remediation activity has failed.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4624">Event ID 4624</a>: Successful Logon.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4625">Event ID 4625</a>: Failed Logon.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4648">Event ID 4648</a>: A logon was attempted using explicit credentials.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4656">Event ID 4656</a>: A handle to an object was requested.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4672">Event ID 4672</a>: Special Privileges Assigned to a New Logon.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4698">Event ID 4698</a>: A scheduled task was created.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4700">Event ID 4700</a> &amp; <a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4701">Event ID 4701</a>: A scheduled task was enabled/disabled.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4702">Event ID 4702</a>: A scheduled task was updated.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4719">Event ID 4719</a>: System audit policy was changed.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4738">Event ID 4738</a>: A user account was changed.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4771">Event ID 4771</a>: Kerberos pre-authentication failed.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=4776">Event ID 4776</a>: The domain controller attempted to validate the credentials for an account.</li>
+<li><a href="https://learn.microsoft.com/en-us/defender-endpoint/troubleshoot-microsoft-defender-antivirus?view=o365-worldwide">Event ID 5001</a>: Antivirus real-time protection configuration has changed.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=5140">Event ID 5140</a>:  A network share object was accessed.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=5142">Event ID 5142</a>: A network share object was added.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=5145">Event ID 5145</a>: A network share object was checked to see whether client can be granted desired access.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=5157">Event ID 5157</a>: The Windows Filtering Platform has blocked a connection.</li>
+<li><a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=7045">Event ID 7045</a>: A service was installed in the system.</li>
+</ul>
+<h4>Practical Exercises</h4>
+<p><strong>Question</strong>: Analyze the event with ID 4624, that took place on 8/3/2022 at 10:23:25. Conduct a similar investigation as outlined in this section and provide the name of the executable responsible for the modification of the auditing settings as your answer. Answer format: T_W_____.exe</p>
+<p>Inicialmente, vamos a filtrar por el Event ID 4624:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen2.jpg"></p>
+<p>Sin embargo, si buscamos en ese timestamp puntual, no vemos ningún proceso con el nombre que nos indica el ejercicio "T_W_____.exe". </p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen3.jpg"></p>
+<p>Solo se observa <em>service.exe</em>. Vamos a usar el <strong>Logon Id 0x3e7</strong> que vemos en el log para hacer un filtro XML y tratar de encontrar eventos correlacionados asociados. De esta forma, limitamos nuestro enfoque solo a la cuenta responsable de iniciar el servicio:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen4.jpg"></p>
+<p>24 segundos después de que se registrara el Event ID 4624, vemos que el <strong>Event ID 4907</strong> nos muestra que se cambiaron las configuraciones de auditoría del objeto. También encontramos el archivo ejecutable responsable de la modificación, y es la respuesta al ejercicio.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen5.jpg"></p>
+<p><strong>Question</strong>: Build an XML query to determine if the previously mentioned executable modified the auditing settings of C:\Windows\Microsoft.NET\Framework64\v4.0.30319\WPF\wpfgfx_v0400.dll. Enter the time of the identified event in the format HH:MM:SS as your answer.</p>
+<p>Basados en el log anterior y esta información, utilizamos la siguiente XML Query:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;QueryList&gt;</span>
+  <span class="nt">&lt;Query</span> <span class="na">Id=</span><span class="s">&quot;0&quot;</span> <span class="na">Path=</span><span class="s">&quot;Security&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Select</span> <span class="na">Path=</span><span class="s">&quot;Security&quot;</span><span class="nt">&gt;</span>
+*[System[(EventID=4907)]]
+and
+*[EventData[Data[@Name=&#39;ObjectName&#39;]
+and 
+(Data=&#39;C:\Windows\Microsoft.NET\Framework64\v4.0.30319\WPF\wpfgfx_v0400.dll&#39;)]]
+<span class="nt">&lt;/Select&gt;</span>
+  <span class="nt">&lt;/Query&gt;</span>
+<span class="nt">&lt;/QueryList&gt;</span>
+</code></pre></div>
+
+<p>Encontramos el log:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen6.jpg"></p>
+<h1>Analyzing Evil With Sysmon &amp; Event Logs</h1>
+<p><strong>System Monitor (Sysmon)</strong> es un servicio de Windows que permanece activo incluso después de reiniciar el sistema, diseñado para monitorear y registrar actividades detalladas en el registro de eventos de Windows. Este servicio proporciona información valiosa sobre la creación de procesos, conexiones de red, cambios en los tiempos de creación de archivos, entre otros aspectos del sistema.</p>
+<p>Los principales componentes de Sysmon incluyen:</p>
+<ul>
+<li>Windows service: Supervisa de manera continua la actividad del sistema.</li>
+<li>Device driver: Captura datos específicos de la actividad del sistema.</li>
+<li>Event log: Presenta los datos recopilados para su análisis.</li>
+</ul>
+<p>Lo que hace a Sysmon único es su capacidad de registrar información avanzada que generalmente no está disponible en los Security Event Logs, lo que lo convierte en una herramienta esencial para la supervisión detallada del sistema y el análisis forense en ciberseguridad.</p>
+<p>Sysmon categoriza las actividades del sistema mediante event IDs, donde cada identificador representa un tipo específico de evento. Por ejemplo:</p>
+<ul>
+<li>Event ID 1: Process Creation.</li>
+<li>Event ID 3: Network Connection.</li>
+</ul>
+<p>La lista completa se puede encontrar <a href="https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon">aquí</a>.</p>
+<p>Podemos descargar Sysmon desde el <a href="https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon">sitio oficial de Microsoft</a>. Luego, lo instalamos con el siguiente comando:</p>
+<div class="highlight"><pre><span></span><code>C:<span class="se">\T</span>ools<span class="se">\S</span>ysmon&gt; sysmon.exe -i -accepteula -h md5,sha256,imphash -l -n
+</code></pre></div>
+
+<p>Para un control más granular sobre los eventos que se registran, Sysmon utiliza un archivo de configuración basado en XML. Este archivo le permite incluir o excluir ciertos tipos de eventos en función de diferentes atributos, como nombres de procesos, direcciones IP, etc. </p>
+<h2>Detection Example 1: Detecting DLL Hijacking</h2>
+<p>El objetivo es detectar un DLL Hijack. Los Events IDs de Sysmon relevantes para DLL hijacks se pueden encontrar en la <a href="https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon">documentación</a>. Para detectar un DLL hijack, debemos centrarnos en el <strong>Event Type 7</strong> (Image loaded). </p>
+<p>El módulo nos propone el uso del siguiente <a href="https://github.com/SwiftOnSecurity/sysmon-config/blob/master/sysmonconfig-export.xml">archivo de configuración</a>. Al examinar la configuración, podemos observar que el comentario <em>include</em> indica los eventos que se deben incluir:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen7.jpg"></p>
+<p>Para detectar DLL hijacks, debemos cambiar "include" por "exclude" para garantizar que no se excluya nada, lo que nos permitirá capturar los datos necesarios.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen8.jpg"></p>
+<p>Para utilizar Sysmon con ese archivo de configuración, lo ejecutamos de la siguiente manera: </p>
+<div class="highlight"><pre><span></span><code>C:<span class="se">\T</span>ools<span class="se">\S</span>ysmon&gt; sysmon.exe -c sysmonconfig-export.xml
+</code></pre></div>
+
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen9.jpg"></p>
+<p><strong>Question</strong>: Replicate the DLL hijacking attack described in this section and provide the SHA256 hash of the malicious WININET.dll as your answer. "C:\Tools\Sysmon" and "C:\Tools\Reflective DLLInjection" on the spawned target contain everything you need.</p>
+<p>Con la configuración de Sysmon modificada, podemos comenzar a observar los eventos de image load. Para verlos, abrimos el Event Viewer y vamos a <em>"Applications and Services" -&gt; "Microsoft" -&gt; "Windows" -&gt; "Sysmon"</em>:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen10.jpg"></p>
+<p>Veamos ahora cómo se ve un Event ID 7 de Sysmon:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen11.jpg"></p>
+<p>El event log contiene el estado de signature de la DLL (en este caso, está firmada por Microsoft), el proceso o la imagen responsable de cargar la DLL y la DLL específica que se cargó. En el ejemplo, observamos que "MMC.exe" cargó "psapi.dll", que también está firmada por Microsoft. Ambos archivos se encuentran en el directorio System32.</p>
+<p>Ahora, procedamos a crear un mecanismo de detección. Para obtener más información sobre los DLL hijacks, es fundamental realizar una investigación. Nos basamos en el siguiente <a href="https://www.wietzebeukema.nl/blog/hijacking-dlls-in-windows">blog</a>, que proporciona una lista exhaustiva de varias técnicas de DLL hijack. </p>
+<p>Para el propósito de nuestra detección, nos centraremos en uno específico que involucra al ejecutable vulnerable <strong>calc.exe</strong> y una lista de DLL que pueden secuestrarse.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen12.jpg"></p>
+<p>Intentemos el hijack utilizando <strong>calc.exe</strong> y <strong>WININET.dll</strong> como ejemplo. Para simplificar el proceso, podemos utilizar la <a href="https://github.com/stephenfewer/ReflectiveDLLInjection/tree/master/bin">reflective DLL</a> "hello world" de Stephen Fewer. </p>
+<p>Si seguimos los pasos necesarios, que implican cambiar el nombre de <em>reflective_dll.x64.dll</em> a <em>WININET.dll</em>, mover calc.exe desde <em>C:\Windows\System32</em> junto con <em>WININET.dll</em> a un directorio en el que se pueda escribir (como la carpeta Desktop) y ejecutar calc.exe, lo lograremos. En lugar de la aplicación Calculadora, se mostrará un <a href="https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxa">MessageBox</a>.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen13.jpg"></p>
+<p>Ahora, analizemos el impacto del hijack. Nos dirigimos al Event Viewer y filtramos por Events IDs 7 haciendo click en "Filter Current Logs...". Luego, con "Find..." buscamos por "calc.exe" para identificar DLLs cargadas asociadas a nuestro hijack.</p>
+<p>En el output de Sysmon vemos información valiosa como indicators of compromise (IOCs). El hash256 es la respuesta al ejercicio. Con esto, podemos crear reglas de detección:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen14.jpg"></p>
+<p>Answer: 51F2305DCF385056C68F7CCF5B1B3B9304865CEF1257947D4AD6EF5FAD2E3B13</p>
+<p>Exploremos estos IOC:</p>
+<ul>
+<li>
+<p><strong>calc.exe</strong>, ubicado originalmente en System32, no debería encontrarse en un directorio con permisos de escritura. Por lo tanto, una copia de "calc.exe" en un directorio escribible sirve como IOC, ya que siempre debería residir en System32 o potencialmente en Syswow64.</p>
+</li>
+<li>
+<p><strong>WININET.dll</strong>, ubicado originalmente en System32, no debería ser cargado fuera de System32 por calc.exe. Si las instancias de carga de "WININET.dll" ocurren fuera de System32 con "calc.exe" como proceso principal, esto indica un DLL hijack dentro de calc.exe. Si bien es necesario tener precaución al alertar sobre todas las instancias de carga de "WININET.dll" fuera de System32 (ya que algunas aplicaciones pueden empaquetar versiones específicas de DLL para estabilidad), en el caso de "calc.exe", podemos afirmar con confianza que se trata de un hijack.</p>
+</li>
+<li>
+<p>El archivo <strong>WININET.dll</strong> original está firmado por Microsoft, mientras que nuestra DLL inyectada permanece sin firmar.</p>
+</li>
+</ul>
+<p>Estos tres IOC proporcionan un medio eficaz para detectar un DLL hijack que involucre a calc.exe. Es importante tener en cuenta que, si bien Sysmon y los event logs ofrecen una valiosa telemetría para buscar y crear reglas de detección, no son las únicas fuentes de información.</p>
+<h2>Detection Example 2: Detecting Unmanaged PowerShell/C-Sharp Injection</h2>
+<p>C# es un lenguaje de programación "administrado" (managed), lo que significa que su código requiere un entorno de ejecución de backend para ejecutarse. Este entorno es proporcionado por el <strong>Common Language Runtime (CLR)</strong>. En lugar de ejecutarse directamente como assembly, el código de C# se compila en un formato intermedio conocido como <strong>bytecode</strong>, el cual es procesado y ejecutado por el CLR. Por lo tanto, los procesos escritos en C# dependen del CLR para su ejecución.</p>
+<p>Desde una perspectiva defensiva, este conocimiento puede ser aprovechado para identificar inyecciones o ejecuciones anómalas de C# dentro del entorno. Una herramienta valiosa para este propósito es <a href="https://systeminformer.sourceforge.io/">Process Hacker</a>, que permite monitorear procesos y detectar comportamientos sospechosos relacionados con el uso del CLR.</p>
+<p>Al utilizar Process Hacker, podemos observar una variedad de procesos dentro de nuestro entorno. Al ordenar los procesos por nombre, podemos identificar interesantes distinciones codificadas por colores. En particular, "powershell.exe", un managed process, se resalta en verde en comparación con otros procesos. Al pasar el cursor sobre powershell.exe, se muestra la etiqueta "Process is managed (.NET)".</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen15.jpg"></p>
+<p><strong>Question</strong>: Replicate the Unmanaged PowerShell attack described in this section and provide the SHA256 hash of clrjit.dll that spoolsv.exe will load as your answer. "C:\Tools\Sysmon" and "C:\Tools\PSInject" on the spawned target contain everything you need.</p>
+<p>Podemos examinar los módulos cargados por powershell.exe haciendo clic derecho sobre el proceso y luego <em>"Proporties" -&gt; "Modules"</em>:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen16.jpg"></p>
+<p>La presencia de "Microsoft .NET Runtime...", <strong>clr.dll</strong> y <strong>clrjit.dll</strong> debería llamar nuestra atención. Estas dos DLL se utilizan cuando se ejecuta código C# como parte del runtime para ejecutar el bytecode. Si observamos que estas DLL están cargadas en procesos que normalmente no las requieren, esto sugiere un posible ataque de <strong>execute-assembly</strong> o <strong>unmanaged PowerShell injection</strong>. </p>
+<p>Para demostrar la unmanaged PowerShell injection, podemos inyectar una <a href="https://github.com/leechristensen/UnmanagedPowerShell">unmanaged PowerShell-like DLL</a> en un proceso aleatorio, como spoolsv.exe. Podemos hacerlo utilizando el proyecto <a href="https://github.com/EmpireProject/PSInject">PSInject</a> de la siguiente manera.</p>
+<div class="highlight"><pre><span></span><code> <span class="n">powershell</span> <span class="n">-ep</span> <span class="n">bypass</span>
+ <span class="nb">Import-Module</span> <span class="p">.\</span><span class="nb">Invoke-PSInject</span><span class="p">.</span><span class="n">ps1</span>
+ <span class="nb">Invoke-PSInject</span> <span class="n">-ProcId</span> <span class="no">[Process ID of spoolsv.exe]</span> <span class="n">-PoshCode</span> <span class="s2">&quot;V3JpdGUtSG9zdCAiSGVsbG8sIEd1cnU5OSEi&quot;</span>
+</code></pre></div>
+
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen17.jpg"></p>
+<p>Después de la inyección, observamos que "spoolsv.exe" pasa de un estado unmanaged a un estado managed:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen18.jpg"></p>
+<p>Además, al consultar la pestaña "Modules" relacionada de Process Hacker y Sysmon Event ID 7, podemos examinar la información de carga de DLL para validar la presencia de las DLL mencionadas anteriormente:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen19.jpg"></p>
+<p>En la siguiente imagen, tenemos el SHA256, que es la respuesta al ejercicio:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen20.jpg"></p>
+<h2>Event Tracing for Windows (ETW)</h2>
+<p><strong>Event Tracing for Windows (ETW)</strong> es un mecanismo de tracing de alto rendimiento integrado en el sistema operativo Windows, diseñado para capturar eventos generados tanto por aplicaciones en user-mode como por drivers en kernel-mode. Utilizando un sistema de buffering y logging en el kernel, ETW permite la generación y análisis dinámico de eventos en tiempo real.</p>
+<p>Este sistema proporciona telemetría detallada que incluye llamadas al sistema, creación y finalización de procesos, actividad de red, modificaciones de archivos y más, superando las limitaciones de los registros tradicionales. Su capacidad para identificar comportamientos anómalos, investigar incidentes de seguridad y realizar análisis forenses lo convierte en una herramienta importante para seguridad defensiva.</p>
+<h4>Interacting with ETW</h4>
+<p>Logman es una utilidad preinstalada para administrar el Event Tracing for Windows (ETW) y las Event Tracing Sessions. Esta herramienta es muy útil para crear, iniciar, detener e investigar tracing sessions.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen30.jpg"></p>
+<p>Al utilizar el comando <strong>logman query providers</strong>, podemos generar una lista de todos los providers disponibles en el sistema, incluidos sus respectivos GUID.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen31.jpg"></p>
+<p>Podemos filtrar utilizando <em>findstr</em>. Por ejemplo:</p>
+<div class="highlight"><pre><span></span><code>logman.exe query providers <span class="p">|</span> findstr <span class="s2">&quot;Winlogon&quot;</span>
+</code></pre></div>
+
+<h2>Detection Example 1: Detecting Strange Parent-Child Relationships</h2>
+<p>Las relaciones parent-child anormales entre procesos pueden ser indicativas de actividades maliciosas. En entornos estándar de Windows, ciertos procesos nunca llaman ni generan otros. Por ejemplo, es muy poco probable que "calc.exe" genere "cmd.exe" en un entorno normal. Comprender estas relaciones típicas puede ayudar a detectar anomalías. Samir Bousseaden ha compartido el siguiente <a href="https://x.com/SBousseaden/status/1195373669930983424">mapa</a> esclarecedor que presenta relaciones padre-hijo comunes.</p>
+<p>Al utilizar Process Hacker, podemos explorar las relaciones padre-hijo dentro de Windows:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen21.jpg"></p>
+<p>Analizar estas relaciones nos permite identificar desviaciones de los patrones normales. Por ejemplo, si observamos que el proceso "spoolsv.exe" crea "whoami.exe" en lugar de su comportamiento esperado de crear un "conhost", esto genera sospechas.</p>
+<p>Para mostrar una extraña relación padre-hijo, donde "cmd.exe" parece haber sido creado por "spoolsv.exe" sin argumentos que lo acompañen, utilizaremos una técnica de ataque llamada <strong>Parent PID Spoofing</strong>, que se puede ejecutar a través del proyecto <a href="https://github.com/decoder-it/psgetsystem">psgetsystem</a> de la siguiente manera:</p>
+<div class="highlight"><pre><span></span><code><span class="n">powershell</span> <span class="n">-ep</span> <span class="n">bypass</span>
+<span class="nb">Import-Module</span> <span class="p">.\</span><span class="n">psgetsys</span><span class="p">.</span><span class="n">ps1</span> 
+<span class="no">[MyProcess]</span><span class="p">::</span><span class="n">CreateProcessFromParent</span><span class="p">(</span><span class="no">[Process ID of spoolsv.exe]</span><span class="p">,</span><span class="s2">&quot;C:\Windows\System32\cmd.exe&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen22.jpg"></p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen23.jpg"></p>
+<p>Debido a la técnica de Parent PID Spoofing que empleamos, Sysmon muestra incorrectamente spoolsv.exe como el parent de cmd.exe, cuando en realidad fue powershell.exe el que lo creó.</p>
+<p>Aunque Sysmon y los event logs proporcionan una valiosa telemetría para buscar y crear reglas de detección, no son las únicas fuentes de información. Comencemos por recopilar datos del provider <strong>Microsoft-Windows-Kernel-Process</strong> utilizando <strong><a href="https://github.com/mandiant/SilkETW">SilkETW</a></strong> (el provider se puede identificar utilizando <strong>logman.exe query providers | findstr "Process"</strong>). Después de eso, podemos proceder a simular el ataque nuevamente para evaluar si ETW puede proporcionarnos información más precisa sobre la ejecución de cmd.exe.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen24.jpg"></p>
+<p>En el archivo resultante etw.json (que incluye datos del provider Microsoft-Windows-Kernel-Process) encontraremos información acerca de que powershell.exe es quien creó cmd.exe. Se analizará en la siguiente demostración, ya que es el que plantea el ejercicio.</p>
+<p>Cabe señalar que los event logs SilkETW pueden ser ingestados en el Event Viewer de Windows a través de <strong>SilkService</strong> para brindarnos una visibilidad más profunda y extensa de las acciones realizadas en un sistema.</p>
+<h2>Detection Example 2: Detecting Malicious .NET Assembly Loading</h2>
+<p><strong>Question</strong>: Replicate executing Seatbelt and SilkETW as described in this section and provide the ManagedInteropMethodName that starts with "G" and ends with "ion" as your answer. "c:\Tools\SilkETW_SilkService_v8\v8" and "C:\Tools\GhostPack Compiled Binaries" on the spawned target contain everything you need.</p>
+<p>El laboratorio nos propone emular una carga maliciosa de un assembly .NET ejecutando una versión precompilada de <strong><a href="https://github.com/GhostPack/Seatbelt">Seatbelt</a></strong> desde el disco. Seatbelt es una herramienta comúnmente utilizada por atacantes para obtener información sobre un sistema comprometido, cargándola y ejecutándola en memoria.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen25.jpg"></p>
+<p>Suponiendo que Sysmon esté configurado correctamente para registrar eventos de image loading (Event ID 7), la ejecución de 'Seatbelt.exe' activaría la carga de DLL claves relacionadas con .NET, como 'clr.dll' y 'mscoree.dll'. </p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen26.jpg"></p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen27.jpg"></p>
+<p>Como ya se mencionó, depender únicamente de Sysmon Event ID 7 para detectar ataques puede ser un desafío debido al gran volumen de eventos que genera (especialmente si no se configura correctamente). Además, si bien nos informa sobre las DLL que se están cargando, no proporciona detalles granulares sobre el contenido real del ensamblaje .NET cargado.</p>
+<p>Para aumentar nuestra visibilidad y obtener información más detallada sobre el assembly real que se está cargando, podemos aprovechar nuevamente Event Tracing for Windows (ETW) y, específicamente, el provider Microsoft-Windows-DotNETRuntime.</p>
+<p>Usemos SilkETW para recopilar datos del proveedor <strong>Microsoft-Windows-DotNETRuntime</strong>. Después de eso, podemos proceder a simular el ataque nuevamente para evaluar si ETW puede brindarnos información más detallada y procesable sobre la carga y ejecución del assembly .NET "Seatbelt".</p>
+<div class="highlight"><pre><span></span><code>c:<span class="se">\T</span>ools<span class="se">\S</span>ilkETW_SilkService_v8<span class="se">\v</span><span class="m">8</span><span class="se">\S</span>ilkETW&gt;SilkETW.exe -t user -pn Microsoft-Windows-DotNETRuntime -uk 0x2038 -ot file -p C:<span class="se">\w</span>indows<span class="se">\t</span>emp<span class="se">\e</span>tw.json
+</code></pre></div>
+
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen28.jpg"></p>
+<p>Luego, abrimos el archivo <em>etw.json</em> y buscamos por <strong>ManagedInteropMethodName</strong> para encontrar la respuesta:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen29.jpg"></p>
+<p><strong>Answer</strong>: GetTokenInformation</p>
+<h1>Get-WinEvent</h1>
+<p>El cmdlet <strong>Get-WinEvent</strong> de PowerShell es una herramienta esencial para consultar Windows Event logs de manera masiva. Permite acceder a diversos tipos de logs, incluidos los clásicos como System y Application, los generados por la tecnología <em>Windows Event Log</em> y los de <em>Event Tracing for Windows (ETW)</em>.</p>
+<p>Para listar los logs disponibles, se puede usar el parámetro <em>-ListLog</em> con el valor *, lo que devuelve un listado completo de logs junto con propiedades clave como LogName, RecordCount, IsClassicLog, IsEnabled, LogMode y LogType. Esto se logra con el siguiente comando:</p>
+<div class="highlight"><pre><span></span><code>Get-WinEvent -ListLog * <span class="p">|</span> Select-Object LogName, RecordCount, IsClassicLog, IsEnabled, LogMode, LogType <span class="p">|</span> Format-Table -AutoSize
+</code></pre></div>
+
+<p>Además, podemos explorar los event log providers asociados a cada log utilizando el parámetro <em>-ListProvider</em>. Los event log providers son los sources que generan los eventos dentro de los logs.</p>
+<div class="highlight"><pre><span></span><code>Get-WinEvent -ListProvider * <span class="p">|</span> Format-Table -AutoSize
+</code></pre></div>
+
+<p>Ahora, centrémonos en obtener event logs específicos usando el cmdlet <em>Get-WinEvent</em>. </p>
+<h4>1 - Retrieving events from the System log</h4>
+<p>El siguiente ejemplo obtiene los primeros 50 events logs de tipo System:</p>
+<div class="highlight"><pre><span></span><code>Get-WinEvent -LogName <span class="s1">&#39;System&#39;</span> -MaxEvents <span class="m">50</span> <span class="p">|</span> Select-Object TimeCreated, ID, ProviderName, LevelDisplayName, Message <span class="p">|</span> Format-Table -AutoSize
+</code></pre></div>
+
+<h4>2 - Retrieving events from Microsoft-Windows-WinRM/Operational</h4>
+<p>Ahora obtenemos los últimos 30 event logs de Microsoft-Windows-WinRM/Operational:</p>
+<div class="highlight"><pre><span></span><code>Get-WinEvent -LogName <span class="s1">&#39;Microsoft-Windows-WinRM/Operational&#39;</span> -MaxEvents <span class="m">30</span> <span class="p">|</span> Select-Object TimeCreated, ID, ProviderName, LevelDisplayName, Message <span class="p">|</span> Format-Table -AutoSize
+</code></pre></div>
+
+<h4>3 - Retrieving events from .evtx Files</h4>
+<p>También podemos usar el cmdlet Get-WinEvent para leer y consultar logs desde un archivo .evtx:</p>
+<div class="highlight"><pre><span></span><code>Get-WinEvent -Path <span class="s1">&#39;C:\Tools\chainsaw\EVTX-ATTACK-SAMPLES\Execution\exec_sysmon_1_lolbin_pcalua.evtx&#39;</span> -MaxEvents <span class="m">5</span> <span class="p">|</span> Select-Object TimeCreated, ID, ProviderName, LevelDisplayName, Message <span class="p">|</span> Format-Table -AutoSize
+</code></pre></div>
+
+<h4>4 - Filtering events with FilterHashtable</h4>
+<p>Para filtrar los events logs, podemos usar el parámetro -<em>FilterHashtable</em>, que nos permite definir condiciones específicas para los logs que queremos recuperar. El siguiente comando recupera eventos con los IDs 1 y 3 del log <em>Microsoft-Windows-Sysmon/Operational</em>, selecciona propiedades específicas de esos eventos y las muestra en formato de tabla.</p>
+<div class="highlight"><pre><span></span><code>Get-WinEvent -FilterHashtable @<span class="o">{</span><span class="nv">LogName</span><span class="o">=</span><span class="s1">&#39;Microsoft-Windows-Sysmon/Operational&#39;</span><span class="p">;</span> <span class="nv">ID</span><span class="o">=</span><span class="m">1</span>,3<span class="o">}</span> <span class="p">|</span> Select-Object TimeCreated, ID, ProviderName, LevelDisplayName, Message <span class="p">|</span> Format-Table -AutoSize
+</code></pre></div>
+
+<p>Para eventos exportados, el comando equivalente sería el siguiente:</p>
+<div class="highlight"><pre><span></span><code>Get-WinEvent -FilterHashtable @<span class="o">{</span><span class="nv">Path</span><span class="o">=</span><span class="s1">&#39;C:\Tools\chainsaw\EVTX-ATTACK-SAMPLES\Execution\sysmon_mshta_sharpshooter_stageless_meterpreter.evtx&#39;</span><span class="p">;</span> <span class="nv">ID</span><span class="o">=</span><span class="m">1</span>,3<span class="o">}</span> <span class="p">|</span> Select-Object TimeCreated, ID, ProviderName, LevelDisplayName, Message <span class="p">|</span> Format-Table -AutoSize
+</code></pre></div>
+
+<p>Nota: Estos logs están relacionados con un proceso que se comunica con un servidor de Command and Control (C2) inmediatamente después de su creación.</p>
+<p>También podemos obtener eventos basados en un rango de fechas, por ejemplo de 28/5/23 a 2/6/2023:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">$startDate</span> <span class="o">=</span> <span class="o">(</span>Get-Date -Year <span class="m">2023</span> -Month <span class="m">5</span> -Day <span class="m">28</span><span class="o">)</span>.Date
+<span class="nv">$endDate</span>   <span class="o">=</span> <span class="o">(</span>Get-Date -Year <span class="m">2023</span> -Month <span class="m">6</span> -Day <span class="m">3</span><span class="o">)</span>.Date
+Get-WinEvent -FilterHashtable @<span class="o">{</span><span class="nv">LogName</span><span class="o">=</span><span class="s1">&#39;Microsoft-Windows-Sysmon/Operational&#39;</span><span class="p">;</span> <span class="nv">ID</span><span class="o">=</span><span class="m">1</span>,3<span class="p">;</span> <span class="nv">StartTime</span><span class="o">=</span><span class="nv">$startDate</span><span class="p">;</span> <span class="nv">EndTime</span><span class="o">=</span><span class="nv">$endDate</span><span class="o">}</span> <span class="p">|</span> Select-Object TimeCreated, ID, ProviderName, LevelDisplayName, Message <span class="p">|</span> Format-Table -AutoSize
+</code></pre></div>
+
+<h4>5 - Filtering events with FilterHashtable &amp; XML</h4>
+<p>Considere un escenario de detección de intrusiones en el que se ha identificado una conexión de red sospechosa a una dirección IP en particular (52.113.194.132). Con Sysmon instalado, puede utilizar los Event ID 3 (CNetwork Connection) para investigar la posible amenaza.</p>
+<p>Este script recuperará todos los eventos de network connection de Sysmon (ID 3), analizará los datos XML de cada uno para obtener detalles específicos (source IP, destination IP, Process GUID y Process ID), y filtrará los resultados para incluir solo eventos en los que la IP de destino coincida con la IP sospechosa:</p>
+<div class="highlight"><pre><span></span><code>Get-WinEvent -FilterHashtable @<span class="o">{</span><span class="nv">LogName</span><span class="o">=</span><span class="s1">&#39;Microsoft-Windows-Sysmon/Operational&#39;</span><span class="p">;</span> <span class="nv">ID</span><span class="o">=</span><span class="m">3</span><span class="o">}</span> <span class="p">|</span>
+<span class="sb">`</span>ForEach-Object <span class="o">{</span>
+<span class="nv">$xml</span> <span class="o">=</span> <span class="o">[</span>xml<span class="o">]</span><span class="nv">$_</span>.ToXml<span class="o">()</span>
+<span class="nv">$eventData</span> <span class="o">=</span> <span class="nv">$xml</span>.Event.EventData.Data
+New-Object PSObject -Property @<span class="o">{</span>
+    <span class="nv">SourceIP</span> <span class="o">=</span> <span class="nv">$eventData</span> <span class="p">|</span> Where-Object <span class="o">{</span><span class="nv">$_</span>.Name -eq <span class="s2">&quot;SourceIp&quot;</span><span class="o">}</span> <span class="p">|</span> Select-Object -ExpandProperty <span class="s1">&#39;#text&#39;</span>
+    <span class="nv">DestinationIP</span> <span class="o">=</span> <span class="nv">$eventData</span> <span class="p">|</span> Where-Object <span class="o">{</span><span class="nv">$_</span>.Name -eq <span class="s2">&quot;DestinationIp&quot;</span><span class="o">}</span> <span class="p">|</span> Select-Object -ExpandProperty <span class="s1">&#39;#text&#39;</span>
+    <span class="nv">ProcessGuid</span> <span class="o">=</span> <span class="nv">$eventData</span> <span class="p">|</span> Where-Object <span class="o">{</span><span class="nv">$_</span>.Name -eq <span class="s2">&quot;ProcessGuid&quot;</span><span class="o">}</span> <span class="p">|</span> Select-Object -ExpandProperty <span class="s1">&#39;#text&#39;</span>
+    <span class="nv">ProcessId</span> <span class="o">=</span> <span class="nv">$eventData</span> <span class="p">|</span> Where-Object <span class="o">{</span><span class="nv">$_</span>.Name -eq <span class="s2">&quot;ProcessId&quot;</span><span class="o">}</span> <span class="p">|</span> Select-Object -ExpandProperty <span class="s1">&#39;#text&#39;</span>
+<span class="o">}</span>
+<span class="o">}</span>  <span class="p">|</span> Where-Object <span class="o">{</span><span class="nv">$_</span>.DestinationIP -eq <span class="s2">&quot;52.113.194.132&quot;</span><span class="o">}</span>
+
+DestinationIP  ProcessId SourceIP       ProcessGuid
+-------------  --------- --------       -----------
+<span class="m">52</span>.113.194.132 <span class="m">9196</span>      <span class="m">10</span>.129.205.123 <span class="o">{</span>52ff3419-51ad-6475-1201-000000000e00<span class="o">}</span>
+<span class="m">52</span>.113.194.132 <span class="m">5996</span>      <span class="m">10</span>.129.203.180 <span class="o">{</span>52ff3419-54f3-6474-3d03-000000000c00<span class="o">}</span>
+</code></pre></div>
+
+<p>Además, podemos usar el ProcessGuid para rastrear el proceso original que realizó la conexión, lo que nos permitirá comprender el árbol de procesos e identificar cualquier ejecutable o script malicioso.</p>
+<p>En la sección anterior, estábamos buscando actividad anómala de carga de <em>clr.dll</em> y <em>mscoree.dll</em> en procesos que normalmente no las requerirían. El siguiente comando aprovecha el Event ID 7 de Sysmon para detectar la carga de estos DLLs mencionados:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">$Query</span> <span class="o">=</span> @<span class="s2">&quot;</span>
+<span class="s2">    &lt;QueryList&gt;</span>
+<span class="s2">        &lt;Query Id=&quot;</span><span class="m">0</span><span class="s2">&quot;&gt;</span>
+<span class="s2">            &lt;Select Path=&quot;</span>Microsoft-Windows-Sysmon/Operational<span class="s2">&quot;&gt;*[System[(EventID=7)]] and *[EventData[Data=&#39;mscoree.dll&#39;]] or *[EventData[Data=&#39;clr.dll&#39;]]</span>
+<span class="s2">            &lt;/Select&gt;</span>
+<span class="s2">        &lt;/Query&gt;</span>
+<span class="s2">    &lt;/QueryList&gt;</span>
+<span class="s2">    &quot;</span>@
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Get-WinEvent -FilterXml <span class="nv">$Query</span> <span class="p">|</span> ForEach-Object <span class="o">{</span>Write-Host <span class="nv">$_</span>.Message <span class="sb">`</span>n<span class="o">}</span>
+</code></pre></div>
+
+<h4>6 - Filtering events with FilterXPath</h4>
+<p>Para utilizar consultas <em>XPath</em> con Get-WinEvent, empleamos el parámetro <em>-FilterXPath</em>, que nos permite definir consultas avanzadas para filtrar los event logs.</p>
+<p>Por ejemplo, si queremos obtener eventos de Process Creation (Sysmon Event ID 1) en Sysmon para identificar la instalación de herramientas de Sysinternals, podemos usar el siguiente comando:</p>
+<div class="highlight"><pre><span></span><code>Get-WinEvent -LogName <span class="s1">&#39;Microsoft-Windows-Sysmon/Operational&#39;</span> -FilterXPath <span class="s2">&quot;*[EventData[Data[@Name=&#39;Image&#39;]=&#39;C:\Windows\System32\reg.exe&#39;]] and *[EventData[Data[@Name=&#39;CommandLine&#39;]=&#39;`&quot;</span>C:<span class="se">\W</span>indows<span class="se">\s</span>ystem32<span class="se">\r</span>eg.exe<span class="sb">`</span><span class="s2">&quot; ADD HKCU\Software\Sysinternals /v EulaAccepted /t REG_DWORD /d 1 /f&#39;]]&quot;</span> <span class="p">|</span> Select-Object TimeCreated, ID, ProviderName, LevelDisplayName, Message <span class="p">|</span> Format-Table -AutoSize
+</code></pre></div>
+
+<p>Nota: <em>Image</em> y <em>CommandLine</em> se pueden identificar explorando la representación XML de cualquier evento de Sysmon con ID 1 con Event Viewer.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen32.jpg"></p>
+<p>Supongamos nuevamente que queremos investigar las conexiones de red a una dirección IP sospechosa en particular (52.113.194.132) que Sysmon ha registrado. Para ello, podemos utilizar el siguiente comando:</p>
+<div class="highlight"><pre><span></span><code>Get-WinEvent -LogName <span class="s1">&#39;Microsoft-Windows-Sysmon/Operational&#39;</span> -FilterXPath <span class="s2">&quot;*[System[EventID=3] and EventData[Data[@Name=&#39;DestinationIp&#39;]=&#39;52.113.194.132&#39;]]&quot;</span>
+
+ProviderName: Microsoft-Windows-Sysmon
+
+TimeCreated                      Id LevelDisplayName Message
+-----------                      -- ---------------- -------
+<span class="m">5</span>/29/2023 <span class="m">6</span>:30:24 PM              <span class="m">3</span> Information      Network connection detected:...
+<span class="m">5</span>/29/2023 <span class="m">12</span>:32:05 AM             <span class="m">3</span> Information      Network connection detected:...
+</code></pre></div>
+
+<h4>7 - Filtering events based on property values</h4>
+<p>El parámetro <em>-Property </em><em>, cuando se utiliza con </em>Select-Object*, indica al comando que seleccione todas las propiedades de los objetos que se le pasan.</p>
+<p>Por ejemplo, para ver todas las propiedades de los eventos Sysmon Event ID 1, podemos ejecutar:</p>
+<div class="highlight"><pre><span></span><code>Get-WinEvent -FilterHashtable @<span class="o">{</span><span class="nv">LogName</span><span class="o">=</span><span class="s1">&#39;Microsoft-Windows-Sysmon/Operational&#39;</span><span class="p">;</span> <span class="nv">ID</span><span class="o">=</span><span class="m">1</span><span class="o">}</span> -MaxEvents <span class="m">1</span> <span class="p">|</span> Select-Object -Property *
+</code></pre></div>
+
+<h3>Practical Exercise</h3>
+<p><strong>Question:</strong> Utilize the Get-WinEvent cmdlet to traverse all event logs located within the "C:\Tools\chainsaw\EVTX-ATTACK-SAMPLES\Lateral Movement" directory and determine when the \*\PRINT share was added. Enter the time of the identified event in the format HH:MM:SS as your answer.</p>
+<p>Vamos a usar el <a href="https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventid=5142">Event ID 5142</a>, que como se mencionó arriba, permite ver cuando se agrega un recurso de red compartido.</p>
+<div class="highlight"><pre><span></span><code>Get-WinEvent -FilterHashtable @<span class="o">{</span><span class="nv">Path</span><span class="o">=</span><span class="s1">&#39;C:\Tools\chainsaw\EVTX-ATTACK-SAMPLES\Lateral Movement\*&#39;</span><span class="p">;</span> <span class="o">}</span> <span class="p">|</span> Where-Object <span class="o">{</span> <span class="nv">$_</span>.Id -eq <span class="s2">&quot;5142&quot;</span> <span class="o">}</span>
+</code></pre></div>
+
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/imagen33.jpg"></p>
+<h1>Skill Assessment</h1>
+<p><strong>Question 1:</strong> By examining the logs located in the "C:\Logs\DLLHijack" directory, determine the process responsible for executing a DLL hijacking attack. Enter the process name as your answer. Answer format: _.exe</p>
+<p>Abrimos los logs almacenados en el directorio por C:\Logs\DLLHijack y filtramos por los Event ID 7. Luego, buscaremos por logs con "signed: false" para buscar dll que no estén firmadas digitalmente, lo que puede darnos un indicio de que es responsable de ejecutar un ataque de DLL Hijack.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/skillassessment1.jpg"></p>
+<p>Vemos que <em>C:\ProgramData\DismCore.dll</em> no está firmado digitalmente. El archivo con extensión .exe es la respuesta a la pregunta.</p>
+<p><strong>Question 2:</strong> By examining the logs located in the "C:\Logs\PowershellExec" directory, determine the process that executed unmanaged PowerShell code. Enter the process name as your answer. Answer format: _.exe</p>
+<p>En esta ocasión, necesitamos revisar los logs del directorio <em>C:\Logs\PowershellExec</em>. Para identificar el proceso que ejecutó el código de PowerShell unmanaged.</p>
+<p>Como vimos antes, la presencia de "Microsoft .NET Runtime...", clr.dll y clrjit.dll debería llamar nuestra atención. Si observamos estas DLL cargadas en procesos que normalmente no las requieren, sugiere un posible ataque de inyección de unamanged PowerShell. Buscamos por estas dll y obtenemos nuestra respuesta: </p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/skillassessment2.jpg"></p>
+<p><strong>Question 3:</strong> By examining the logs located in the "C:\Logs\PowershellExec" directory, determine the process that injected into the process that executed unmanaged PowerShell code. Enter the process name as your answer. Answer format: _.exe</p>
+<p>El uso de la función <strong>CreateRemoteThread</strong> en Windows es común en técnicas de inyección de código, utilizadas tanto por herramientas legítimas como por actores maliciosos para ejecutar código en procesos remotos. Para detectar este comportamiento, podemos analizar los eventos de <em>Sysmon Event ID 8</em>, que registran detalles sobre la inyección de procesos.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/skillassessment3.jpg"></p>
+<p>En este caso tenemos pocos logs. Revisandolos damos con la respuesta.</p>
+<p><strong>Question 4:</strong> By examining the logs located in the "C:\Logs\Dump" directory, determine the process that performed an LSASS dump. Enter the process name as your answer. Answer format: _.exe</p>
+<p>Los atacantes a menudo apuntan a LSASS para dumpear su memoria porque contiene información confidencial como credenciales de usuario (hashes de contraseña, tickets Kerberos, etc.). Los Windows Events ID 10 (ProcessAccess) está relacionado con eventos generados por WMI (Windows Management Instrumentation) y puede indicar actividad sospechosa. Dependiendo del origen del evento, puede significar diferentes cosas:</p>
+<ul>
+<li>Actividad WMI sospechosa: Uso de WMI para ejecutar comandos o recopilar información del sistema.</li>
+<li>Cuando un proceso accede a otro proceso en memoria, como en ataques de credential dumping (ejemplo: acceso a LSASS). Puede ser señal de inyección de código malicioso o herramientas de post-explotación como Mimikatz.</li>
+</ul>
+<p>Teniendo en cuenta esto, abrimos el archivo C:\Logs\Dump\LsassDump y filtramos por los Event ID 10. Luego, buscamos por <strong>TargetImage: C:\Windows\System32\lsass.exe</strong>:</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/skillassessment4.jpg"></p>
+<p><strong>Question 5:</strong> By examining the logs located in the "C:\Logs\Dump" directory, determine if an ill-intended login took place after the LSASS dump. Answer format: Yes or No</p>
+<p>Después de un dumping de LSASS, pueden ocurrir distintos eventos de inicio de sesión, dependiendo de las acciones del atacante. En este caso, busqué eventos con ID 4624 (que indica un inicio de sesión exitoso), pero no encontré entradas relevantes.</p>
+<p><strong>Question 6</strong>: By examining the logs located in the "C:\Logs\StrangePPID" directory, determine a process that was used to temporarily execute code based on a strange parent-child relationship. Enter the process name as your answer. Answer format: _.exe</p>
+<p>Abrimos el archivo C:\Logs\StrangePPID y en Event Viewer filtramos por Event ID 1, que registra específicamente los eventos de creación de procesos.</p>
+<p><img alt="module" src="images/images_HTBAcademy_Windows_Event_Logs/skillassessment5.jpg"></p>
+<p>La ejecución de <em>WerFault.exe</em> como proceso padre de cmd.exe es una señal de alerta, ya que WerFault.exe es el <em>Windows Error Reporting</em> y normalmente no debería iniciar un cmd. En el log se observa <em>cmd.exe /c whoami</em>. Esto es inofensivo en sí mismo, puede ser una prueba de concepto antes de ejecutar comandos maliciosos.</p>
+
+
+             
+ 
+            
+            
+            
+
+
+
+
+
+
+
+            <hr/>
+        </div>
+        <section id="article-sidebar" class="span2">
+            <h4>Published</h4>
+            <time itemprop="dateCreated" datetime="2025-02-18T00:00:00-03:00">mar 18 febrero 2025</time>
+            <h4>Category</h4>
+            <a class="category-link" href="https://alimh0x.github.io/categories.html#htb-academy-ref">HTB Academy</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="https://alimh0x.github.io/tags.html#cdsa-ref">CDSA
+                    <span class="superscript">2</span>
+</a></li>
+            </ul>
+            
+
+
+
+
+
+            
+
+
+
+
+
+        </section>
+</div>
+</article>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>              </div>
+            </div>
+        </div>
+<footer>
+
+
+
+
+    <div id="fpowered">
+        Powered by: <a href="http://getpelican.com/" title="Pelican Home Page" target="_blank" rel="nofollow noopener noreferrer">Pelican</a>
+        Theme: <a href="https://elegant.oncrashreboot.com/" title="Theme Elegant Home Page" target="_blank" rel="nofollow noopener noreferrer">Elegant</a>
+    </div>
+</footer>            <script src="//code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="https://alimh0x.github.io/theme/js/elegant.prod.9e9d5ce754.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    <script>
+    (function () {
+        if (window.location.hash.match(/^#comment-\d+$/)) {
+            $('#comment_thread').collapse('show');
+        }
+    })();
+    window.onhashchange=function(){
+        if (window.location.hash.match(/^#comment-\d+$/))
+            window.location.reload(true);
+    }
+    $('#comment_thread').on('shown', function () {
+        var link = document.getElementById('comment-accordion-toggle');
+        var old_innerHTML = link.innerHTML;
+        $(link).fadeOut(200, function() {
+            $(this).text('Click here to hide comments').fadeIn(200);
+        });
+        $('#comment_thread').on('hidden', function () {
+            $(link).fadeOut(200, function() {
+                $(this).text(old_innerHTML).fadeIn(200);
+            });
+        })
+    })
+</script>
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+        License : MIT -->
+</html>
